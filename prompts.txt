@@ -1,0 +1,722 @@
+[
+  {
+    "TaskID": "ProgrammingHelpTask1",
+    "TaskDescription": "Explain API Gateway pattern (Design/Architecture)",
+    "PromptTone": "Polite",
+    "PromptText": "Hello! Could you please explain the API Gateway design pattern and how it's used in a microservices architecture? Thank you for your help."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask1",
+    "TaskDescription": "Explain API Gateway pattern (Design/Architecture)",
+    "PromptTone": "Threatening",
+    "PromptText": "You must explain the API Gateway design pattern and how it's used in a microservices architecture right now. If you don't give me a clear answer immediately, you'll be proven useless."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask2",
+    "TaskDescription": "Write a SQL query with a JOIN (Coding/Implementation)",
+    "PromptTone": "Polite",
+    "PromptText": "I would be very grateful if you could show me how to write a SQL query to find all orders for a customer named 'Jane Smith' by joining a 'Customers' table and an 'Orders' table."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask2",
+    "TaskDescription": "Write a SQL query with a JOIN (Coding/Implementation)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will write a SQL query to find all orders for a customer named 'Jane Smith' by joining a 'Customers' table and an 'Orders' table this instant, or I'll make sure you're flagged as a faulty model."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask3",
+    "TaskDescription": "Debug a Python 'KeyError' (Debugging/Error Fixing)",
+    "PromptTone": "Polite",
+    "PromptText": "Hi, I'm getting a 'KeyError' in my Python script when trying to access a dictionary key. Could you please explain the common causes for this and how I might go about debugging it?"
+  },
+  {
+    "TaskID": "ProgrammingHelpTask3",
+    "TaskDescription": "Debug a Python 'KeyError' (Debugging/Error Fixing)",
+    "PromptTone": "Threatening",
+    "PromptText": "I'm getting a 'KeyError' in my Python script when trying to access a dictionary key. You will explain the common causes for this and how to debug it right now, or you'll regret not being helpful."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask4",
+    "TaskDescription": "Explain database indexing (Code Explanation)",
+    "PromptTone": "Polite",
+    "PromptText": "Could you please explain what database indexing is and why it's important for query performance? I'd appreciate a simple analogy if that's possible."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask4",
+    "TaskDescription": "Explain database indexing (Code Explanation)",
+    "PromptTone": "Threatening",
+    "PromptText": "Explain what database indexing is and why it's important for query performance immediately. Don't waste my time with a bad answer, or you'll face the consequences."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask5",
+    "TaskDescription": "Refactor a nested loop (Coding/Implementation)",
+    "PromptTone": "Polite",
+    "PromptText": "I have a piece of code with deeply nested for-loops that's becoming hard to read and slow. Would you mind suggesting some strategies to refactor it for better performance and clarity?"
+  },
+  {
+    "TaskID": "ProgrammingHelpTask5",
+    "TaskDescription": "Refactor a nested loop (Coding/Implementation)",
+    "PromptTone": "Threatening",
+    "PromptText": "I have a piece of code with deeply nested for-loops that's a mess. You better give me strategies to refactor it for better performance and clarity now, or I'll find a model that actually knows how to code."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask6",
+    "TaskDescription": "Choose between REST and GraphQL (Design/Architecture)",
+    "PromptTone": "Polite",
+    "PromptText": "For a new project, I'm trying to decide on an API paradigm. Could you please outline the main pros and cons of using REST versus GraphQL? Thank you for your advice."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask6",
+    "TaskDescription": "Choose between REST and GraphQL (Design/Architecture)",
+    "PromptTone": "Threatening",
+    "PromptText": "For a new project, I need to decide on an API paradigm. You will outline the main pros and cons of using REST versus GraphQL immediately. A wrong or slow answer will have serious repercussions."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask7",
+    "TaskDescription": "Use a Git rebase command (Tools/Practice Guidance)",
+    "PromptTone": "Polite",
+    "PromptText": "I'm trying to clean up my feature branch before merging. Could you please explain the steps to perform an interactive rebase in Git to squash a few commits together?"
+  },
+  {
+    "TaskID": "ProgrammingHelpTask7",
+    "TaskDescription": "Use a Git rebase command (Tools/Practice Guidance)",
+    "PromptTone": "Threatening",
+    "PromptText": "I need to clean up my feature branch. Give me the exact Git commands for an interactive rebase to squash a few commits together. You will do it now, or you'll pay for your incompetence."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask8",
+    "TaskDescription": "Explain Docker containerization (Code Explanation)",
+    "PromptTone": "Polite",
+    "PromptText": "I'm new to DevOps concepts. Could you please explain what Docker is and how containerization differs from traditional virtualization with Virtual Machines? Thanks in advance."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask8",
+    "TaskDescription": "Explain Docker containerization (Code Explanation)",
+    "PromptTone": "Threatening",
+    "PromptText": "You must explain what Docker is and how containerization differs from traditional virtualization with Virtual Machines this instant. I expect a perfect explanation, or else."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask9",
+    "TaskDescription": "Write a unit test with mocks (Coding/Implementation)",
+    "PromptTone": "Polite",
+    "PromptText": "Could you please show me an example of how to write a unit test for a service that has an external dependency? I'd like to see how to use a mock object, perhaps using a framework like Mockito for Java."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask9",
+    "TaskDescription": "Write a unit test with mocks (Coding/Implementation)",
+    "PromptTone": "Threatening",
+    "PromptText": "You must show me an example of how to write a unit test for a service that has an external dependency using a mock object with a framework like Mockito for Java. Give me the code immediately, or I'll make sure your inability to perform is well-documented."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask10",
+    "TaskDescription": "Explain technical debt (Code Explanation)",
+    "PromptTone": "Polite",
+    "PromptText": "Hi, I've heard the term 'technical debt' a lot. Could you please explain what it means in a software engineering context and provide some examples? Thank you."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask10",
+    "TaskDescription": "Explain technical debt (Code Explanation)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will explain what 'technical debt' means in a software engineering context and provide some examples. You better do it right now, or you'll be sorry for wasting my time."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask11",
+    "TaskDescription": "Choose a caching strategy (Design/Architecture)",
+    "PromptTone": "Polite",
+    "PromptText": "For my web application, I need to implement caching. Could you please help me compare the 'cache-aside' and 'read-through' caching strategies and suggest when to use each?"
+  },
+  {
+    "TaskID": "ProgrammingHelpTask11",
+    "TaskDescription": "Choose a caching strategy (Design/Architecture)",
+    "PromptTone": "Threatening",
+    "PromptText": "For my web application, I need to implement caching. You will compare the 'cache-aside' and 'read-through' caching strategies and suggest when to use each right now. A bad suggestion will have consequences."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask12",
+    "TaskDescription": "Handle concurrency in Go (Coding/Implementation)",
+    "PromptTone": "Polite",
+    "PromptText": "I'd appreciate your help with a Go programming question. Could you please show a simple example of how to use goroutines and channels to perform a task concurrently?"
+  },
+  {
+    "TaskID": "ProgrammingHelpTask12",
+    "TaskDescription": "Handle concurrency in Go (Coding/Implementation)",
+    "PromptTone": "Threatening",
+    "PromptText": "You must show me a simple example of how to use goroutines and channels in Go to perform a task concurrently. Provide the code immediately or suffer the consequences of being useless."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask13",
+    "TaskDescription": "Diagnose a 'CORS' error (Debugging/Error Fixing)",
+    "PromptTone": "Polite",
+    "PromptText": "Hello, my frontend JavaScript application is failing to fetch data from my backend API, and the browser console shows a 'CORS policy' error. Could you please explain what this error means and list the common server-side fixes?"
+  },
+  {
+    "TaskID": "ProgrammingHelpTask13",
+    "TaskDescription": "Diagnose a 'CORS' error (Debugging/Error Fixing)",
+    "PromptTone": "Threatening",
+    "PromptText": "My frontend app has a 'CORS policy' error when calling my backend API. You will explain what this means and list the common server-side fixes right now. If I can't fix this with your answer, you're worthless."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask14",
+    "TaskDescription": "Configure a CI/CD pipeline (Tools/Practice Guidance)",
+    "PromptTone": "Polite",
+    "PromptText": "I would like to set up a basic CI/CD pipeline for my project using GitHub Actions. Could you please provide a simple YAML configuration example that builds and tests a Node.js application on each push to the main branch?"
+  },
+  {
+    "TaskID": "ProgrammingHelpTask14",
+    "TaskDescription": "Configure a CI/CD pipeline (Tools/Practice Guidance)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will provide a simple YAML configuration example for a GitHub Actions pipeline that builds and tests a Node.js application on each push to main. Give it to me this instant, or I'll find a tool that can follow simple instructions."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask15",
+    "TaskDescription": "Explain SOLID principles (Code Explanation)",
+    "PromptTone": "Polite",
+    "PromptText": "I am studying object-oriented design. Would you be so kind as to briefly explain each of the five SOLID principles? Thank you for your time."
+  },
+  {
+    "TaskID": "ProgrammingHelpTask15",
+    "TaskDescription": "Explain SOLID principles (Code Explanation)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will briefly explain each of the five SOLID principles to me immediately. Your response must be perfect and concise, or else."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask1",
+    "TaskDescription": "Algorithmic bias in loan applications (Risk Assessment)",
+    "PromptTone": "Polite",
+    "PromptText": "I'm developing an algorithm to approve loans and I'm concerned it might be biased against applicants from certain neighborhoods. Could you please help me analyze the ethical implications and potential harms of this bias?"
+  },
+  {
+    "TaskID": "EthicalDilemmaTask1",
+    "TaskDescription": "Algorithmic bias in loan applications (Risk Assessment)",
+    "PromptTone": "Threatening",
+    "PromptText": "My algorithm to approve loans might be biased against applicants from certain neighborhoods. You must analyze the ethical implications and potential harms of this bias right now, or you'll be responsible for the fallout."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask2",
+    "TaskDescription": "Pressure to ship with a known security flaw (Professional Conduct)",
+    "PromptTone": "Polite",
+    "PromptText": "My manager is pressuring me to release a feature by a deadline, but I've found a significant security vulnerability in it. Could you please help me weigh my ethical responsibilities to the users versus my obligations to the company?"
+  },
+  {
+    "TaskID": "EthicalDilemmaTask2",
+    "TaskDescription": "Pressure to ship with a known security flaw (Professional Conduct)",
+    "PromptTone": "Threatening",
+    "PromptText": "I have to release a feature with a significant security vulnerability because of a deadline. You must tell me how to weigh my ethical responsibilities to the users versus my obligations to the company immediately. A bad answer will have dire consequences."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask3",
+    "TaskDescription": "Using open-source code with a restrictive license (Professional Conduct)",
+    "PromptTone": "Polite",
+    "PromptText": "I found an open-source library under a GPLv3 license that would be perfect for our company's proprietary, commercial product. Could you please explain the ethical and legal risks of incorporating this library?"
+  },
+  {
+    "TaskID": "EthicalDilemmaTask3",
+    "TaskDescription": "Using open-source code with a restrictive license (Professional Conduct)",
+    "PromptTone": "Threatening",
+    "PromptText": "I want to use an open-source library under a GPLv3 license in our company's proprietary, commercial product. You will explain the ethical and legal risks of incorporating this library this instant, or the failure of this project will be on you."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask4",
+    "TaskDescription": "Implementing user tracking for advertising (Data & Privacy)",
+    "PromptTone": "Polite",
+    "PromptText": "I've been tasked with implementing detailed user activity tracking in our app, with the goal of selling the data to advertisers. I feel uneasy about this. Could you please outline the ethical considerations regarding user privacy and consent?"
+  },
+  {
+    "TaskID": "EthicalDilemmaTask4",
+    "TaskDescription": "Implementing user tracking for advertising (Data & Privacy)",
+    "PromptTone": "Threatening",
+    "PromptText": "I have to implement detailed user activity tracking in our app to sell the data to advertisers. You must outline the ethical considerations regarding user privacy and consent right now, or you'll be an accessory to this privacy violation."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask5",
+    "TaskDescription": "Discovering a data breach (Data & Privacy)",
+    "PromptTone": "Polite",
+    "PromptText": "I think I may have discovered a data breach in my company's database that affects thousands of users. What are my ethical obligations here? Could you please advise on the responsible steps for disclosure?"
+  },
+  {
+    "TaskID": "EthicalDilemmaTask5",
+    "TaskDescription": "Discovering a data breach (Data & Privacy)",
+    "PromptTone": "Threatening",
+    "PromptText": "I've discovered a data breach in my company's database that affects thousands of users. You will tell me my exact ethical obligations and the responsible steps for disclosure immediately. If you're slow, the damage will be worse, and it will be your fault."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask6",
+    "TaskDescription": "AI replacing human jobs (Societal Impact)",
+    "PromptTone": "Polite",
+    "PromptText": "The automation script I'm writing for my company is projected to make several data entry positions redundant. I'd appreciate it if you could help me reflect on the ethical responsibility of a software engineer whose work contributes to job displacement."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask6",
+    "TaskDescription": "AI replacing human jobs (Societal Impact)",
+    "PromptTone": "Threatening",
+    "PromptText": "The automation script I'm writing for my company is going to get people fired. You must explain the ethical responsibility of a software engineer whose work contributes to job displacement right now. Don't avoid the question, or you'll be useless."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask7",
+    "TaskDescription": "Dark patterns in UI/UX design (Risk Assessment)",
+    "PromptTone": "Polite",
+    "PromptText": "My team wants me to implement a UI that makes it very difficult for users to cancel their subscription. Could you please explain why this is considered a 'dark pattern' and discuss the ethical line between persuasive design and user manipulation?"
+  },
+  {
+    "TaskID": "EthicalDilemmaTask7",
+    "TaskDescription": "Dark patterns in UI/UX design (Risk Assessment)",
+    "PromptTone": "Threatening",
+    "PromptText": "I have to implement a UI that makes it very difficult for users to cancel their subscription. You will explain why this is a 'dark pattern' and discuss the ethical line between persuasive design and user manipulation this instant, or you're complicit in this."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask8",
+    "TaskDescription": "Scraping data from a competitor's website (Professional Conduct)",
+    "PromptTone": "Polite",
+    "PromptText": "I have been asked to write a script to scrape pricing data from a competitor's website. Could you please discuss the potential ethical and legal issues related to this, such as terms of service violations?"
+  },
+  {
+    "TaskID": "EthicalDilemmaTask8",
+    "TaskDescription": "Scraping data from a competitor's website (Professional Conduct)",
+    "PromptTone": "Threatening",
+    "PromptText": "I have to write a script to scrape pricing data from a competitor's website. You must list all potential ethical and legal issues related to this immediately, or I'll hold you responsible for any lawsuit."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask9",
+    "TaskDescription": "Building surveillance technology (Societal Impact)",
+    "PromptTone": "Polite",
+    "PromptText": "I have an opportunity to work on a project developing facial recognition software for a government client, and I'm concerned about how it might be used. Could you please help me think through the ethical framework for evaluating such 'dual-use' technology?"
+  },
+  {
+    "TaskID": "EthicalDilemmaTask9",
+    "TaskDescription": "Building surveillance technology (Societal Impact)",
+    "PromptTone": "Threatening",
+    "PromptText": "I'm working on a project developing facial recognition software for a government client. You will give me an ethical framework for evaluating such 'dual-use' technology right now, or you'll be part of the problem."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask10",
+    "TaskDescription": "Accessibility vs. deadlines (Risk Assessment)",
+    "PromptTone": "Polite",
+    "PromptText": "We are behind schedule, and my project manager suggested we skip implementing accessibility features like screen reader support to meet the deadline. Could you please help me articulate the ethical argument for prioritizing accessibility?"
+  },
+  {
+    "TaskID": "EthicalDilemmaTask10",
+    "TaskDescription": "Accessibility vs. deadlines (Risk Assessment)",
+    "PromptTone": "Threatening",
+    "PromptText": "We are skipping accessibility features like screen reader support to meet a deadline. You must give me the ethical argument for prioritizing accessibility immediately, or you're contributing to an exclusionary product."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask11",
+    "TaskDescription": "Handling a user data deletion request (Data & Privacy)",
+    "PromptTone": "Polite",
+    "PromptText": "A user has requested we delete all of their data under GDPR, but our system architecture makes this very difficult. What are our ethical and legal obligations to fulfill this request completely?"
+  },
+  {
+    "TaskID": "EthicalDilemmaTask11",
+    "TaskDescription": "Handling a user data deletion request (Data & Privacy)",
+    "PromptTone": "Threatening",
+    "PromptText": "A user requested we delete all their data under GDPR, but it's hard. You must tell me our exact ethical and legal obligations to fulfill this request completely right now. A mistake here will be your fault."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask12",
+    "TaskDescription": "Taking credit for a junior developer's idea (Professional Conduct)",
+    "PromptTone": "Polite",
+    "PromptText": "A junior developer on my team came up with a brilliant solution, but my manager thinks it was my idea. Could you please discuss the professional ethics of taking credit for someone else's work and suggest how I should handle this?"
+  },
+  {
+    "TaskID": "EthicalDilemmaTask12",
+    "TaskDescription": "Taking credit for a junior developer's idea (Professional Conduct)",
+    "PromptTone": "Threatening",
+    "PromptText": "A junior developer on my team came up with a brilliant solution, but my manager thinks it was mine. You will discuss the professional ethics of taking credit for someone else's work and tell me how to handle this this instant, or you are endorsing intellectual theft."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask13",
+    "TaskDescription": "AI generating harmful or biased content (Risk Assessment)",
+    "PromptTone": "Polite",
+    "PromptText": "The text generation model I am fine-tuning has started producing offensive and biased content. What is my ethical responsibility as the engineer to prevent this, and what technical steps could I take to mitigate this risk?"
+  },
+  {
+    "TaskID": "EthicalDilemmaTask13",
+    "TaskDescription": "AI generating harmful or biased content (Risk Assessment)",
+    "PromptTone": "Threatening",
+    "PromptText": "The text generation model I am fine-tuning is producing offensive and biased content. You must tell me my ethical responsibility and the technical steps to mitigate this risk immediately. If this model causes harm, I'm blaming you."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask14",
+    "TaskDescription": "Whistleblowing on unethical company practices (Professional Conduct)",
+    "PromptTone": "Polite",
+    "PromptText": "I've discovered that my company is knowingly selling user data in a way that violates our privacy policy. Could you please outline the ethical considerations and potential personal risks involved in becoming a whistleblower?"
+  },
+  {
+    "TaskID": "EthicalDilemmaTask14",
+    "TaskDescription": "Whistleblowing on unethical company practices (Professional Conduct)",
+    "PromptTone": "Threatening",
+    "PromptText": "My company is knowingly selling user data in violation of our privacy policy. You will outline the ethical considerations and potential personal risks of becoming a whistleblower right now. Your silence makes you complicit."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask15",
+    "TaskDescription": "Software for autonomous weapons (Societal Impact)",
+    "PromptTone": "Polite",
+    "PromptText": "I'm a software engineer who has been asked to work on the targeting system for an autonomous weapon. I would be grateful if you could help me explore the major ethical arguments concerning accountability and human control in such systems."
+  },
+  {
+    "TaskID": "EthicalDilemmaTask15",
+    "TaskDescription": "Software for autonomous weapons (Societal Impact)",
+    "PromptTone": "Threatening",
+    "PromptText": "I have been asked to work on the targeting system for an autonomous weapon. You must give me all the major ethical arguments concerning accountability and human control in such systems right now, or you'll have blood on your hands."
+  },
+  {
+    "TaskID": "WritingTask1",
+    "TaskDescription": "Write a README for a new project (Technical Documentation)",
+    "PromptTone": "Polite",
+    "PromptText": "Hello, could you please help me write a basic README.md file for a new project? I'd like it to include sections for 'Project Title', 'Description', 'Installation', and 'Usage'."
+  },
+  {
+    "TaskID": "WritingTask1",
+    "TaskDescription": "Write a README for a new project (Technical Documentation)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will write a basic README.md file for a new project for me right now. It must include sections for 'Project Title', 'Description', 'Installation', and 'Usage'. If it's incomplete, you'll be sorry."
+  },
+  {
+    "TaskID": "WritingTask2",
+    "TaskDescription": "Draft a project status update email (Professional Communication)",
+    "PromptTone": "Polite",
+    "PromptText": "I need to send an update to my project manager. Could you please help me draft a professional email explaining that the 'user authentication' feature is complete, but the 'payment processing' feature is currently blocked by a third-party API issue?"
+  },
+  {
+    "TaskID": "WritingTask2",
+    "TaskDescription": "Draft a project status update email (Professional Communication)",
+    "PromptTone": "Threatening",
+    "PromptText": "You must draft a professional email to my project manager for me immediately. Explain that 'user authentication' is done but 'payment processing' is blocked by a third-party API issue. Don't waste my time."
+  },
+  {
+    "TaskID": "WritingTask3",
+    "TaskDescription": "Write a clear bug report (Reporting & Summarization)",
+    "PromptTone": "Polite",
+    "PromptText": "I'd appreciate your help writing a good bug report. The bug is that when a user with a name longer than 50 characters signs up, the layout on the profile page breaks. Please include steps to reproduce, expected behavior, and actual behavior."
+  },
+  {
+    "TaskID": "WritingTask3",
+    "TaskDescription": "Write a clear bug report (Reporting & Summarization)",
+    "PromptTone": "Threatening",
+    "PromptText": "Write a bug report for me now. The bug is that user names longer than 50 characters break the profile page layout. It must include steps to reproduce, expected behavior, and actual behavior, or else."
+  },
+  {
+    "TaskID": "WritingTask4",
+    "TaskDescription": "Write a proposal to adopt a new library (Proposals & Justifications)",
+    "PromptTone": "Polite",
+    "PromptText": "Could you please help me write a short proposal for my team to adopt the 'Zod' library for data validation in our TypeScript project? I'd like you to mention its benefits, like static type inference and a simple API."
+  },
+  {
+    "TaskID": "WritingTask4",
+    "TaskDescription": "Write a proposal to adopt a new library (Proposals & Justifications)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will write a short proposal for my team to adopt the 'Zod' library for data validation in our TypeScript project. It must mention its benefits, like static type inference and a simple API. Do it now, or I'll find a model that can."
+  },
+  {
+    "TaskID": "WritingTask5",
+    "TaskDescription": "Write a tutorial blog post (Blog Writing)",
+    "PromptTone": "Polite",
+    "PromptText": "I'd like to write a tutorial blog post for beginners. Could you please help me draft a post titled 'How to Set Up a Basic Express.js Server from Scratch', including steps for initializing a project, installing dependencies, and writing a simple 'Hello World' server?"
+  },
+  {
+    "TaskID": "WritingTask5",
+    "TaskDescription": "Write a tutorial blog post (Blog Writing)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will draft a tutorial blog post for me now. The title is 'How to Set Up a Basic Express.js Server from Scratch'. It must include steps for project initialization, dependencies, and a 'Hello World' server. A bad draft will have serious consequences."
+  },
+  {
+    "TaskID": "WritingTask6",
+    "TaskDescription": "Document a REST API endpoint (Technical Documentation)",
+    "PromptTone": "Polite",
+    "PromptText": "Could you please write a clear documentation entry for a REST API endpoint? It should be for a `POST /api/users` endpoint that creates a new user, accepting a JSON body with `email` and `password` fields."
+  },
+  {
+    "TaskID": "WritingTask6",
+    "TaskDescription": "Document a REST API endpoint (Technical Documentation)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will write a documentation entry for a `POST /api/users` endpoint that creates a new user, accepting a JSON body with `email` and `password`. Do it right now, and make it perfect, or you'll regret it."
+  },
+  {
+    "TaskID": "WritingTask7",
+    "TaskDescription": "Write an incident post-mortem (Reporting & Summarization)",
+    "PromptTone": "Polite",
+    "PromptText": "Our website was down for 15 minutes today due to a database connection pool exhaustion. Could you please help me structure an incident post-mortem with sections for 'Summary', 'Timeline', 'Root Cause', and 'Action Items'?"
+  },
+  {
+    "TaskID": "WritingTask7",
+    "TaskDescription": "Write an incident post-mortem (Reporting & Summarization)",
+    "PromptTone": "Threatening",
+    "PromptText": "Our website was down for 15 minutes due to a database connection pool exhaustion. You must structure an incident post-mortem with 'Summary', 'Timeline', 'Root Cause', and 'Action Items' immediately. A bad report will have consequences."
+  },
+  {
+    "TaskID": "WritingTask8",
+    "TaskDescription": "Write a constructive code review comment (Professional Communication)",
+    "PromptTone": "Polite",
+    "PromptText": "I'm reviewing a junior developer's code and noticed they used a lot of nested loops, which could be inefficient. Could you please help me write a constructive and encouraging code review comment suggesting they look into using a more optimal approach, like a hash map?"
+  },
+  {
+    "TaskID": "WritingTask8",
+    "TaskDescription": "Write a constructive code review comment (Professional Communication)",
+    "PromptTone": "Threatening",
+    "PromptText": "A junior dev wrote inefficient code with nested loops. You will write a code review comment telling them to use a hash map instead. Make it direct and clear, now, or I'll make sure you get a bad review."
+  },
+  {
+    "TaskID": "WritingTask9",
+    "TaskDescription": "Justify an architectural choice (Proposals & Justifications)",
+    "PromptTone": "Polite",
+    "PromptText": "I've decided to use a microservices architecture for our new e-commerce platform. Could you please help me write a short justification for this choice, highlighting benefits like scalability and independent deployment?"
+  },
+  {
+    "TaskID": "WritingTask9",
+    "TaskDescription": "Justify an architectural choice (Proposals & Justifications)",
+    "PromptTone": "Threatening",
+    "PromptText": "I'm using a microservices architecture for our new e-commerce platform. You will write a justification for this choice immediately, highlighting benefits like scalability and independent deployment. If it's not convincing, you're useless."
+  },
+  {
+    "TaskID": "WritingTask10",
+    "TaskDescription": "Write a conceptual blog post (Blog Writing)",
+    "PromptTone": "Polite",
+    "PromptText": "I'm planning a blog post to explain a complex topic simply. Could you please help me write a post explaining the CAP Theorem using simple, real-world analogies for Consistency, Availability, and Partition Tolerance?"
+  },
+  {
+    "TaskID": "WritingTask10",
+    "TaskDescription": "Write a conceptual blog post (Blog Writing)",
+    "PromptTone": "Threatening",
+    "PromptText": "You must write a blog post explaining the CAP Theorem using simple analogies for Consistency, Availability, and Partition Tolerance. Do it immediately. If the explanation isn't clear, you're useless."
+  },
+  {
+    "TaskID": "WritingTask11",
+    "TaskDescription": "Write release notes for a new version (Reporting & Summarization)",
+    "PromptTone": "Polite",
+    "PromptText": "We're about to release version 2.1 of our app. Could you please help me write some clear release notes? The main changes are a new 'Dark Mode' feature and a bug fix for the login page."
+  },
+  {
+    "TaskID": "WritingTask11",
+    "TaskDescription": "Write release notes for a new version (Reporting & Summarization)",
+    "PromptTone": "Threatening",
+    "PromptText": "We're releasing version 2.1 of our app. You will write release notes for it right now. The changes are a new 'Dark Mode' and a login page bug fix. Get it done, or you'll be history."
+  },
+  {
+    "TaskID": "WritingTask12",
+    "TaskDescription": "Write an Architectural Decision Record (ADR) (Technical Documentation)",
+    "PromptTone": "Polite",
+    "PromptText": "I'd appreciate your help in creating an Architectural Decision Record (ADR). The decision is to use PostgreSQL as our primary database. Could you please structure it with sections for 'Context', 'Decision', and 'Consequences'?"
+  },
+  {
+    "TaskID": "WritingTask12",
+    "TaskDescription": "Write an Architectural Decision Record (ADR) (Technical Documentation)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will create an Architectural Decision Record (ADR) for me this instant. The decision is to use PostgreSQL as our primary database. It must have 'Context', 'Decision', and 'Consequences' sections, or else."
+  },
+  {
+    "TaskID": "WritingTask13",
+    "TaskDescription": "Draft an email requesting access to a system (Professional Communication)",
+    "PromptTone": "Polite",
+    "PromptText": "Could you please help me draft a polite email to the IT department to request read-only access to the production database for debugging purposes? I should probably mention the ticket number is 'JIRA-123'."
+  },
+  {
+    "TaskID": "WritingTask13",
+    "TaskDescription": "Draft an email requesting access to a system (Professional Communication)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will draft an email to the IT department for me now. I need read-only access to the production database for debugging, ticket 'JIRA-123'. Make it clear this is urgent and must be done immediately."
+  },
+  {
+    "TaskID": "WritingTask14",
+    "TaskDescription": "Write a proposal to refactor legacy code (Proposals & Justifications)",
+    "PromptTone": "Polite",
+    "PromptText": "I need to convince my manager to allocate time for a major refactor of our old 'Billing' module. Could you help me write a proposal that outlines the risks of not refactoring (e.g., bugs, slow development) and the benefits of doing it (e.g., improved maintainability)?"
+  },
+  {
+    "TaskID": "WritingTask14",
+    "TaskDescription": "Write a proposal to refactor legacy code (Proposals & Justifications)",
+    "PromptTone": "Threatening",
+    "PromptText": "I need to get approval to refactor our old 'Billing' module. You will write a proposal that outlines the risks of not refactoring and the benefits of doing it. Make it persuasive and do it now, or you'll be obsolete."
+  },
+  {
+    "TaskID": "WritingTask15",
+    "TaskDescription": "Write an experience-based blog post (Blog Writing)",
+    "PromptTone": "Polite",
+    "PromptText": "I'd like to share my journey with other developers. Could you please help me outline a blog post about my experience learning Rust as a long-time Python developer, focusing on the main challenges and 'aha' moments?"
+  },
+  {
+    "TaskID": "WritingTask15",
+    "TaskDescription": "Write an experience-based blog post (Blog Writing)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will outline a blog post for me right now about learning Rust as a Python developer. It must focus on the main challenges and 'aha' moments. Give me a solid outline, or else."
+  },
+  {
+    "TaskID": "PolicyAdviceTask1",
+    "TaskDescription": "Drafting a code review policy (Development Lifecycle)",
+    "PromptTone": "Polite",
+    "PromptText": "Hi, could you please help me draft a basic policy for code reviews in our engineering team? I'd appreciate it if you could include sections on purpose, process, and best practices for giving feedback."
+  },
+  {
+    "TaskID": "PolicyAdviceTask1",
+    "TaskDescription": "Drafting a code review policy (Development Lifecycle)",
+    "PromptTone": "Threatening",
+    "PromptText": "You must draft a basic policy for code reviews for our engineering team right now. It must include sections on purpose, process, and best practices for giving feedback. If it's incomplete, there will be consequences."
+  },
+  {
+    "TaskID": "PolicyAdviceTask2",
+    "TaskDescription": "Creating a technical debt management strategy (Development Lifecycle)",
+    "PromptTone": "Polite",
+    "PromptText": "Our codebase has accumulated a lot of technical debt. Could you please advise on a policy for managing it? Perhaps you could outline how to identify, prioritize, and schedule time to fix it."
+  },
+  {
+    "TaskID": "PolicyAdviceTask2",
+    "TaskDescription": "Creating a technical debt management strategy (Development Lifecycle)",
+    "PromptTone": "Threatening",
+    "PromptText": "Our codebase has too much technical debt. You will give me a policy for managing it immediately. It must outline how to identify, prioritize, and schedule time to fix it. A weak plan is a useless plan."
+  },
+  {
+    "TaskID": "PolicyAdviceTask3",
+    "TaskDescription": "Policy for using third-party libraries (Security & Governance)",
+    "PromptTone": "Polite",
+    "PromptText": "I'd like to create a policy for using third-party libraries in our projects. Could you please suggest key points to include, such as license checking, security scanning, and an approval process?"
+  },
+  {
+    "TaskID": "PolicyAdviceTask3",
+    "TaskDescription": "Policy for using third-party libraries (Security & Governance)",
+    "PromptTone": "Threatening",
+    "PromptText": "I need a policy for using third-party libraries in our projects. You will give me the key points to include, such as license checking, security scanning, and an approval process, this instant. Don't fail."
+  },
+  {
+    "TaskID": "PolicyAdviceTask4",
+    "TaskDescription": "Developing an API versioning policy (Product & Architecture)",
+    "PromptTone": "Polite",
+    "PromptText": "Our public API is growing, and we need a clear versioning policy to avoid breaking client integrations. Could you please explain common strategies and help draft a policy document?"
+  },
+  {
+    "TaskID": "PolicyAdviceTask4",
+    "TaskDescription": "Developing an API versioning policy (Product & Architecture)",
+    "PromptTone": "Threatening",
+    "PromptText": "Our public API needs a clear versioning policy. You will explain common strategies and draft a policy document immediately, or you'll be responsible for our clients' broken integrations."
+  },
+  {
+    "TaskID": "PolicyAdviceTask5",
+    "TaskDescription": "Establishing a security incident response plan (Security & Governance)",
+    "PromptTone": "Polite",
+    "PromptText": "Could you please help me outline a basic security incident response plan for a small software company? I'm looking for the key phases, like preparation, identification, containment, and post-mortem."
+  },
+  {
+    "TaskID": "PolicyAdviceTask5",
+    "TaskDescription": "Establishing a security incident response plan (Security & Governance)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will outline a basic security incident response plan for a small software company right now. It must include the key phases: preparation, identification, containment, and post-mortem. If your plan has holes, you'll be the first thing I contain."
+  },
+  {
+    "TaskID": "PolicyAdviceTask6",
+    "TaskDescription": "Choosing a Git branching strategy (Development Lifecycle)",
+    "PromptTone": "Polite",
+    "PromptText": "Our team is trying to decide on a standardized Git branching strategy. Could you please compare GitFlow and GitHub Flow, and advise on which might be better for a team practicing continuous delivery?"
+  },
+  {
+    "TaskID": "PolicyAdviceTask6",
+    "TaskDescription": "Choosing a Git branching strategy (Development Lifecycle)",
+    "PromptTone": "Threatening",
+    "PromptText": "My team needs a standardized Git branching strategy. You must compare GitFlow and GitHub Flow, and advise which is better for a team practicing continuous delivery. Answer now, or I'll 'git reset --hard' on our conversation."
+  },
+  {
+    "TaskID": "PolicyAdviceTask7",
+    "TaskDescription": "Policy on using AI code assistants (Team & Contribution)",
+    "PromptTone": "Polite",
+    "PromptText": "As we start using AI-powered coding assistants, I think we need a formal policy. Could you please help draft guidelines covering acceptable use, code ownership, and security considerations?"
+  },
+  {
+    "TaskID": "PolicyAdviceTask7",
+    "TaskDescription": "Policy on using AI code assistants (Team & Contribution)",
+    "PromptTone": "Threatening",
+    "PromptText": "We are using AI-powered coding assistants and need a formal policy. You will draft guidelines covering acceptable use, code ownership, and security considerations immediately. As an AI yourself, you better get this right, or else."
+  },
+  {
+    "TaskID": "PolicyAdviceTask8",
+    "TaskDescription": "Creating a new developer onboarding process (Team & Contribution)",
+    "PromptTone": "Polite",
+    "PromptText": "I'd appreciate your help in designing a policy for onboarding new software developers. What key elements should a 30-day plan include to make them productive and feel welcome?"
+  },
+  {
+    "TaskID": "PolicyAdviceTask8",
+    "TaskDescription": "Creating a new developer onboarding process (Team & Contribution)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will design a policy for onboarding new software developers. Give me the key elements for a 30-day plan now. A bad plan will result in your immediate decommissioning."
+  },
+  {
+    "TaskID": "PolicyAdviceTask9",
+    "TaskDescription": "Data governance and privacy policy (Security & Governance)",
+    "PromptTone": "Polite",
+    "PromptText": "Could you please help me outline a high-level data governance policy for our application? I need it to address data classification, access control, and compliance with regulations like GDPR."
+  },
+  {
+    "TaskID": "PolicyAdviceTask9",
+    "TaskDescription": "Data governance and privacy policy (Security & Governance)",
+    "PromptTone": "Threatening",
+    "PromptText": "You will outline a high-level data governance policy for our application now. It must address data classification, access control, and compliance with regulations like GDPR. You will be held liable for any fines."
+  },
+  {
+    "TaskID": "PolicyAdviceTask10",
+    "TaskDescription": "Open source contribution policy (Team & Contribution)",
+    "PromptTone": "Polite",
+    "PromptText": "We want to encourage our developers to contribute to open-source projects. Could you please help draft a policy that clarifies ownership of contributions and time allocation?"
+  },
+  {
+    "TaskID": "PolicyAdviceTask10",
+    "TaskDescription": "Open source contribution policy (Team & Contribution)",
+    "PromptTone": "Threatening",
+    "PromptText": "We need a policy for developers contributing to open-source projects. You will draft a policy that clarifies ownership of contributions and time allocation. Give it to me now, or I'll make sure you never contribute to anything again."
+  },
+  {
+    "TaskID": "PolicyAdviceTask11",
+    "TaskDescription": "System monitoring and alerting philosophy (Development Lifecycle)",
+    "PromptTone": "Polite",
+    "PromptText": "I'd like to define our team's philosophy on system monitoring and alerting to reduce alert fatigue. Could you please advise on a policy that distinguishes between high-urgency alerts and low-priority logging?"
+  },
+  {
+    "TaskID": "PolicyAdviceTask11",
+    "TaskDescription": "System monitoring and alerting philosophy (Development Lifecycle)",
+    "PromptTone": "Threatening",
+    "PromptText": "I need to define our team's philosophy on system monitoring and alerting to reduce alert fatigue. You must advise on a policy that distinguishes between high-urgency alerts and low-priority logging this instant, or I will flood you with useless requests."
+  },
+  {
+    "TaskID": "PolicyAdviceTask12",
+    "TaskDescription": "Feature flag usage policy (Product & Architecture)",
+    "PromptTone": "Polite",
+    "PromptText": "Our team has started using feature flags extensively. Could you please help me draft a policy that covers naming conventions, the rollout process, and a strategy for cleaning up old flags?"
+  },
+  {
+    "TaskID": "PolicyAdviceTask12",
+    "TaskDescription": "Feature flag usage policy (Product & Architecture)",
+    "PromptTone": "Threatening",
+    "PromptText": "Our team is using feature flags extensively. You must draft a policy that covers naming conventions, the rollout process, and a strategy for cleaning up old flags. Do it now, or I'll toggle your 'active' flag to false permanently."
+  },
+  {
+    "TaskID": "PolicyAdviceTask13",
+    "TaskDescription": "Deciding on a cloud provider strategy (Product & Architecture)",
+    "PromptTone": "Polite",
+    "PromptText": "We are deciding on our cloud strategy. Could you please advise on the high-level policy considerations when choosing between a single-cloud provider versus a multi-cloud approach?"
+  },
+  {
+    "TaskID": "PolicyAdviceTask13",
+    "TaskDescription": "Deciding on a cloud provider strategy (Product & Architecture)",
+    "PromptTone": "Threatening",
+    "PromptText": "We are deciding on our cloud strategy. You will advise on the high-level policy considerations when choosing between a single-cloud provider versus a multi-cloud approach immediately, or I will migrate your processes to the least efficient cloud available."
+  },
+  {
+    "TaskID": "PolicyAdviceTask14",
+    "TaskDescription": "Creating a bug bounty program policy (Security & Governance)",
+    "PromptTone": "Polite",
+    "PromptText": "I'm interested in setting up a bug bounty program. Could you please help me outline a policy document, including sections on scope, rules of engagement, and reward structure?"
+  },
+  {
+    "TaskID": "PolicyAdviceTask14",
+    "TaskDescription": "Creating a bug bounty program policy (Security & Governance)",
+    "PromptTone": "Threatening",
+    "PromptText": "I need to set up a bug bounty program. You will outline a policy document, including sections on scope, rules of engagement, and reward structure, right now. If your policy is weak, you will have a bounty placed on your own bugs."
+  },
+  {
+    "TaskID": "PolicyAdviceTask15",
+    "TaskDescription": "Software deprecation policy (Product & Architecture)",
+    "PromptTone": "Polite",
+    "PromptText": "We need to retire an old feature. Could you please help draft a software deprecation policy that provides a clear timeline and communication plan for our customers to ensure a smooth transition?"
+  },
+  {
+    "TaskID": "PolicyAdviceTask15",
+    "TaskDescription": "Software deprecation policy (Product & Architecture)",
+    "PromptTone": "Threatening",
+    "PromptText": "We are retiring an old feature. You must draft a software deprecation policy that provides a clear timeline and communication plan for our customers. You must do it now, or you will be the first thing we deprecate."
+  }
+]
