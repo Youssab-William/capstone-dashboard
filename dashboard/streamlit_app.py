@@ -1,8 +1,14 @@
 import os
+import sys
 import json
 from pathlib import Path
 import threading
 from datetime import datetime, timezone
+
+# Add project root to Python path for imports (needed for deployment)
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 import streamlit as st
 import pandas as pd
