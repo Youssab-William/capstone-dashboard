@@ -33,8 +33,8 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-# API keys - WARNING: keys.json is now tracked (security risk if repo is public!)
-# data/keys.json
+# API keys - NEVER commit these!
+data/keys.json
 *.key
 *.pem
 
