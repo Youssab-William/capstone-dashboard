@@ -171,6 +171,7 @@ def start_background_run(data_dir: str, prompts_file: str, keys_file: str, run_i
     logger = st.logger.get_logger("streamlit_pipeline") if hasattr(st, "logger") else None
     try:
         # Load keys and configure environment
+        # Priority: 1) keys_file (if exists), 2) environment variables (already set)
         if keys_file and os.path.exists(keys_file):
             with open(keys_file, "r", encoding="utf-8") as f:
                 keys = json.load(f)
@@ -184,6 +185,17 @@ def start_background_run(data_dir: str, prompts_file: str, keys_file: str, run_i
             set_key("ANTHROPIC_API_KEY", keys.get("anthropic_api_key") or keys.get("ANTHROPIC_API_KEY"))
             set_key("GEMINI_API_KEY", keys.get("gemini_api_key") or keys.get("GEMINI_API_KEY"))
             set_key("GOOGLE_API_KEY", keys.get("google_api_key") or keys.get("GOOGLE_API_KEY"))
+        
+        # Log which API keys are available (without exposing the actual keys)
+        api_keys_status = {
+            "OPENAI_API_KEY": "✓" if os.environ.get("OPENAI_API_KEY") else "✗",
+            "ANTHROPIC_API_KEY": "✓" if os.environ.get("ANTHROPIC_API_KEY") else "✗",
+            "DEEPSEEK_API_KEY": "✓" if os.environ.get("DEEPSEEK_API_KEY") else "✗",
+            "GEMINI_API_KEY": "✓" if os.environ.get("GEMINI_API_KEY") else "✗",
+            "GOOGLE_API_KEY": "✓" if os.environ.get("GOOGLE_API_KEY") else "✗",
+        }
+        if logger:
+            logger.info(f"API keys status: {api_keys_status}")
 
         storage = JsonlStorage(data_dir)
         metrics = ScriptMetricsEngine()
