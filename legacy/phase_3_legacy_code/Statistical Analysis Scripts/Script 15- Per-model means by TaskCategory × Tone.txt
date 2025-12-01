@@ -1,0 +1,10 @@
+if "Model" in df.columns:
+    per_model_means_ct = df.groupby(["Model", TASKCAT, "ToneLabel"], observed=False)[RESP_METRICS].mean()
+    print("=== Per-model means by TaskCategory × Tone ===")
+    display(per_model_means_ct)
+
+    # Save
+    for m in RESP_METRICS:
+        T = per_model_means_ct[m].unstack("ToneLabel")
+        T.to_csv(f"means_{m}_by_Model_{TASKCAT}_x_Tone.csv")
+    print("Saved: means_<metric>_by_Model_TaskCategory_x_Tone.csv")

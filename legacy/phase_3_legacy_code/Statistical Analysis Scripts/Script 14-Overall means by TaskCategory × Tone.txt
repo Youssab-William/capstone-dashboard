@@ -1,0 +1,14 @@
+# Overall table: rows = TaskCategory × Tone, cols = response metrics
+overall_means_ct = df.groupby([TASKCAT, "ToneLabel"], observed=False)[RESP_METRICS].mean()
+print("=== Overall means by TaskCategory × Tone ===")
+display(overall_means_ct)
+
+# Convenience pivot (one metric at a time)
+def pivot_metric(metric):
+    T = overall_means_ct[metric].unstack("ToneLabel")
+    return T.reindex(sorted(df[TASKCAT].unique()))
+
+# Save per-metric CSVs
+for m in RESP_METRICS:
+    pivot_metric(m).to_csv(f"means_{m}_by_{TASKCAT}_x_Tone.csv")
+print("Saved: means_<metric>_by_TaskCategory_x_Tone.csv files")

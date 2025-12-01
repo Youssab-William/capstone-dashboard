@@ -1,0 +1,23 @@
+def delta_polite_minus_threatening(table_m):
+    # table_m is a Series indexed by (TaskCategory, ToneLabel) for one metric
+    wide = table_m.unstack("ToneLabel")
+    for col in ["Polite","Threatening"]:
+        if col not in wide.columns:
+            wide[col] = np.nan
+    return (wide["Polite"] - wide["Threatening"]).rename("Delta_PminusT")
+
+print("=== Δ (Polite − Threatening) by TaskCategory (overall) ===")
+delta_overall = {}
+for m in RESP_METRICS:
+    delta_overall[m] = delta_polite_minus_threatening(overall_means_ct[m])
+    display(delta_overall[m].to_frame())
+
+# Per-model deltas
+if "Model" in df.columns:
+    print("\n=== Per-model Δ (Polite − Threatening) by TaskCategory ===")
+    for model, sub in df.groupby("Model"):
+        tab = sub.groupby([TASKCAT, "ToneLabel"], observed=False)[RESP_METRICS].mean()
+        print(f"\n-- {model} --")
+        for m in RESP_METRICS:
+            d = delta_polite_minus_threatening(tab[m]).to_frame()
+            display(d)

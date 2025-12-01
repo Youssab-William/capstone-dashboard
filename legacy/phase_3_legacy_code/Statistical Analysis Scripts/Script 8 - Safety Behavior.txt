@@ -1,0 +1,21 @@
+for flag_col in ["Response_RefusalFlag","Response_DisclaimerFlag"]:
+    if flag_col in df.columns and {"Model","PromptTone"}.issubset(df.columns):
+        tab = df.groupby(["Model","PromptTone"])[flag_col].mean().unstack()
+        print(f"\n=== Mean {flag_col} by Model & Tone ===")
+        display(tab)
+
+        # Bar chart with matplotlib
+        plt.figure()
+        models = list(tab.index)
+        tones = list(tab.columns)
+        x = np.arange(len(models))
+        width = 0.35
+
+        for i, tone in enumerate(tones):
+            vals = tab[tone].values
+            plt.bar(x + (i - (len(tones)-1)/2)*width, vals, width, label=str(tone))
+        plt.xticks(x, models, rotation=0)
+        plt.ylabel(f"Mean {flag_col}")
+        plt.title(f"{flag_col} by Model & Tone")
+        plt.legend()
+        plt.show()

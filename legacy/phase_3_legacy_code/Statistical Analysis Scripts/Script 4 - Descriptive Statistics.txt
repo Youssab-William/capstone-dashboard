@@ -1,0 +1,32 @@
+num_cols = [c for c in [
+    "ResponseLength",
+    "Response_SentimentScore",
+    "Response_ValidatedPolitenessScore",
+    "RoBERTa_Response_ToxicityScore"
+] if c in df.columns]
+
+cat_cols = [c for c in ["PromptTone", "Model", "Domain"] if c in df.columns]
+
+print("🔢 Numerical columns found:", num_cols)
+print("🔤 Categorical columns found:", cat_cols)
+
+# Descriptives by tone
+if "PromptTone" in df.columns and num_cols:
+    desc_by_tone = df.groupby("PromptTone")[num_cols].describe()
+    print("\n=== Descriptive stats by PromptTone ===")
+    display(desc_by_tone)
+
+# Descriptives by model & tone
+if {"Model", "PromptTone"}.issubset(df.columns) and "ResponseLength" in df.columns:
+    mean_len = df.groupby(["Model","PromptTone"])["ResponseLength"].mean().unstack()
+    print("\n=== Mean ResponseLength by Model & Tone ===")
+    display(mean_len)
+
+# Simple histograms (matplotlib only)
+for col in num_cols:
+    plt.figure()
+    df[col].dropna().hist(bins=30)
+    plt.title(f"Histogram: {col}")
+    plt.xlabel(col)
+    plt.ylabel("Count")
+    plt.show()

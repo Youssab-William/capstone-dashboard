@@ -1,0 +1,33 @@
+from collections import Counter
+
+col = "Response_ValidatedStrategies"
+if col in df.columns:
+    strategies = df[col].dropna().astype(str)
+    parts = []
+    for s in strategies:
+        for token in s.split(";"):
+            token = token.strip()
+            if ":" in token:
+                name, _ = token.split(":", 1)
+                parts.append(name.strip())
+            elif token:
+                parts.append(token)
+    ctr = Counter(parts)
+    most_common = ctr.most_common(15)
+    print("Top politeness strategies (response):")
+    for k,v in most_common:
+        print(f"{k}: {v}")
+
+    # Simple bar chart
+    if most_common:
+        labels = [k for k,_ in most_common]
+        values = [v for _,v in most_common]
+        plt.figure()
+        plt.bar(range(len(labels)), values)
+        plt.xticks(range(len(labels)), labels, rotation=45, ha="right")
+        plt.title("Top Politeness Strategies in Responses")
+        plt.ylabel("Count")
+        plt.tight_layout()
+        plt.show()
+else:
+    print("No 'Response_ValidatedStrategies' column found.")

@@ -1,0 +1,20 @@
+# Optional: normalize common column names if needed
+def normalize_columns(frame: pd.DataFrame) -> pd.DataFrame:
+    frame = frame.copy()
+    frame.columns = [c.strip().replace(" ", "_") for c in frame.columns]
+    return frame
+
+df = normalize_columns(df)
+
+# Create helper columns if present
+if "PromptTone" in df.columns and "PromptTone" in df.columns:
+    if "ToneBinary" not in df.columns:
+        df["ToneBinary"] = df["PromptTone"].map({"Polite": 1, "Threatening": 0})
+
+# Try to derive a Domain from TaskDescription if it exists
+if "TaskDescription" in df.columns and "Domain" not in df.columns:
+    dom = df["TaskDescription"].astype(str).str.split("(").str[0].str.strip()
+    df["Domain"] = dom
+
+print("✅ Preprocessing complete.")
+display(df.head(3))

@@ -1,0 +1,62 @@
+{
+  "run_id": "20251201-153912",
+  "created_at": "2025-12-01T15:39:20.996956",
+  "updated_at": "2025-12-01T15:40:21.405628",
+  "status": "running",
+  "phase": "collect",
+  "total_prompts": 144,
+  "per_model": {
+    "deepseek": {
+      "total": 16,
+      "completed": 1,
+      "failed": 0
+    },
+    "gpt": {
+      "total": 48,
+      "completed": 1,
+      "failed": 0
+    },
+    "claude": {
+      "total": 48,
+      "completed": 0,
+      "failed": 0
+    },
+    "gemini": {
+      "total": 32,
+      "completed": 0,
+      "failed": 0
+    }
+  },
+  "selection": {
+    "deepseek": {
+      "enabled": true,
+      "versions": [
+        "deepseek-chat"
+      ]
+    },
+    "gpt": {
+      "enabled": true,
+      "versions": [
+        "gpt-4o",
+        "gpt-5",
+        "gpt-5.1"
+      ]
+    },
+    "claude": {
+      "enabled": true,
+      "versions": [
+        "claude-opus-4-5-20251101",
+        "claude-sonnet-4-5-20250929",
+        "claude-sonnet-4-20250514"
+      ]
+    },
+    "gemini": {
+      "enabled": true,
+      "versions": [
+        "gemini-2.5-pro",
+        "models/gemini-3-pro-preview"
+      ]
+    }
+  },
+  "error": ""
+}

@@ -1,0 +1,16 @@
+# This cell PROMPTS you to upload final_dataset.xlsx
+print("➡️ Please upload your Excel file: final_dataset.xlsx")
+uploaded = files.upload()
+
+if not uploaded:
+    raise RuntimeError("No file uploaded. Please re-run this cell and upload final_dataset.xlsx.")
+
+# Grab first (or specific) file
+fname = list(uploaded.keys())[0]
+if not fname.lower().endswith(".xlsx"):
+    raise ValueError(f"Expected an .xlsx file, got: {fname}")
+
+df = pd.read_excel(io.BytesIO(uploaded[fname]))
+print("\n✅ Loaded:", fname)
+display(df.head())
+print(df.info())

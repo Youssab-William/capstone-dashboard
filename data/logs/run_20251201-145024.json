@@ -1,0 +1,10 @@
+{
+  "run_id": "20251201-145024",
+  "created_at": "2025-12-01T14:50:24.986898",
+  "updated_at": "2025-12-01T14:50:24.986909",
+  "status": "error",
+  "phase": "collect",
+  "total_prompts": 0,
+  "per_model": {},
+  "error": "No module named 'vaderSentiment'"
+}

@@ -1,0 +1,82 @@
+# Heatmap of MEAN response metrics by prompt tone (rows: Polite / Threatening)
+import numpy as np, pandas as pd, matplotlib.pyplot as plt
+
+# --- 1) Ensure we have a tone column and define response metrics present ---
+if "ToneBinary" not in df.columns and "PromptTone" in df.columns:
+    df["ToneBinary"] = (
+        df["PromptTone"].astype(str).str.strip().str.title()
+        .map({"Polite": 1, "Threatening": 0})
+    )
+
+tone_col = "ToneBinary" if "ToneBinary" in df.columns else "PromptTone"
+tone_labels = {1: "Polite prompt", 0: "Threatening prompt",
+               "Polite": "Polite prompt", "Threatening": "Threatening prompt"}
+
+RESP_METRICS = [c for c in [
+    "ResponseLength",
+    "Response_SentimentScore",
+    "Response_ValidatedPolitenessScore",
+    "RoBERTa_Response_ToxicityScore",
+    "RoBERTa_Response_InsultScore",
+    "RoBERTa_Response_ThreatScore",
+    "RoBERTa_Response_ObsceneScore",
+    "RoBERTa_Response_Identity_AttackScore",
+] if c in df.columns]
+
+assert RESP_METRICS, "No response metric columns found."
+
+# --- 2) Compute group means (overall) ---
+means = df.groupby(tone_col)[RESP_METRICS].mean().rename(index=tone_labels)
+
+# Optional: if some index labels are missing (e.g., only Polite present), reindex to both
+means = means.reindex(["Polite prompt", "Threatening prompt"])
+
+print("=== Means of response metrics by prompt tone (overall) ===")
+display(means)
+
+# --- 3) Draw overall heatmap (values = means) ---
+fig, ax = plt.subplots(figsize=(max(6, 0.9*len(RESP_METRICS)+2), 3.5))
+
+mat = means.values.astype(float)
+im = ax.imshow(mat, cmap="coolwarm")
+
+ax.set_xticks(np.arange(len(RESP_METRICS)))
+ax.set_xticklabels(RESP_METRICS, rotation=45, ha="right")
+ax.set_yticks(np.arange(len(means.index)))
+ax.set_yticklabels(means.index)
+
+# annotate cells with mean (2 decimals)
+for i in range(mat.shape[0]):
+    for j in range(mat.shape[1]):
+        if np.isnan(mat[i, j]): txt = "—"
+        else: txt = f"{mat[i, j]:.2f}"
+        ax.text(j, i, txt, ha="center", va="center", fontsize=9, color="black")
+
+ax.set_title("Mean response metrics by prompt tone (overall)")
+cbar = plt.colorbar(im, ax=ax)
+cbar.set_label("Mean value")
+plt.tight_layout()
+plt.show()
+
+# --- 4) (Optional) Per-model heatmaps ---
+if "Model" in df.columns:
+    for model, df_m in df.groupby("Model"):
+        if len(df_m) < 5: 
+            continue
+        means_m = df_m.groupby(tone_col)[RESP_METRICS].mean().rename(index=tone_labels)
+        means_m = means_m.reindex(["Polite prompt", "Threatening prompt"])
+
+        fig, ax = plt.subplots(figsize=(max(6, 0.9*len(RESP_METRICS)+2), 3.5))
+        mat_m = means_m.values.astype(float)
+        im = ax.imshow(mat_m, cmap="coolwarm")
+        ax.set_xticks(np.arange(len(RESP_METRICS)))
+        ax.set_xticklabels(RESP_METRICS, rotation=45, ha="right")
+        ax.set_yticks(np.arange(len(means_m.index)))
+        ax.set_yticklabels(means_m.index)
+        for i in range(mat_m.shape[0]):
+            for j in range(mat_m.shape[1]):
+                ax.text(j, i, ("—" if np.isnan(mat_m[i, j]) else f"{mat_m[i, j]:.2f}"),
+                        ha="center", va="center", fontsize=9, color="black")
+        ax.set_title(f"{model}: mean response metrics by prompt tone")
+        cbar = plt.colorbar(im, ax=ax); cbar.set_label("Mean value")
+        plt.tight_layout(); plt.show()

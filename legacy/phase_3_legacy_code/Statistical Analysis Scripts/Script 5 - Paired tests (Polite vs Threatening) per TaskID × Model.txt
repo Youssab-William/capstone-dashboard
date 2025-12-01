@@ -1,0 +1,19 @@
+def paired_test_for(metric: str):
+    required = {"TaskID", "Model", "PromptTone", metric}
+    if not required.issubset(df.columns):
+        print(f"Skipping {metric}: missing columns {required - set(df.columns)}")
+        return
+    pivot = df.pivot_table(index=["TaskID","Model"], columns="PromptTone", values=metric)
+    pivot = pivot.dropna(subset=["Polite","Threatening"], how="any")
+    if pivot.empty:
+        print(f"No paired data for {metric}.")
+        return
+    t_stat, p_val = stats.ttest_rel(pivot["Polite"], pivot["Threatening"])
+    diff = (pivot["Polite"] - pivot["Threatening"]).dropna()
+    d = diff.mean() / diff.std(ddof=1) if diff.std(ddof=1) != 0 else np.nan
+    print(f"\n=== Paired t-test for {metric} (Polite vs Threatening) ===")
+    print(f"n = {len(diff)} | t = {t_stat:.3f} | p = {p_val:.4g} | Cohen's d = {d:.3f}")
+
+for metric in ["ResponseLength","Response_SentimentScore","Response_ValidatedPolitenessScore","RoBERTa_Response_ToxicityScore"]:
+    if metric in df.columns:
+        paired_test_for(metric)

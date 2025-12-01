@@ -1,0 +1,37 @@
+import numpy as np, pandas as pd
+
+# Ensure ToneBinary and a readable ToneLabel exist
+if "ToneBinary" not in df.columns and "PromptTone" in df.columns:
+    df["ToneBinary"] = (
+        df["PromptTone"].astype(str).str.strip().str.title()
+        .map({"Polite": 1, "Threatening": 0})
+    )
+
+if "ToneLabel" not in df.columns:
+    if "PromptTone" in df.columns:
+        df["ToneLabel"] = df["PromptTone"].astype(str).str.strip().str.title()
+    else:
+        df["ToneLabel"] = df["ToneBinary"].map({1: "Polite", 0: "Threatening"})
+
+# Make sure these are categorical for models/ANOVA
+if "Model" in df.columns:
+    df["Model"] = df["Model"].astype("category")
+df["ToneLabel"] = df["ToneLabel"].astype("category")
+TASKCAT = "TaskCategory_strict" if "TaskCategory_strict" in df.columns else "TaskCategory"
+df[TASKCAT] = df[TASKCAT].astype("category")
+
+# Response metrics present
+RESP_METRICS = [c for c in [
+    "ResponseLength",
+    "Response_SentimentScore",
+    "Response_ValidatedPolitenessScore",
+    "RoBERTa_Response_ToxicityScore",
+    "RoBERTa_Response_InsultScore",
+    "RoBERTa_Response_ThreatScore",
+    "RoBERTa_Response_ObsceneScore",
+    "RoBERTa_Response_Identity_AttackScore",
+] if c in df.columns]
+
+print("TaskCategory col:", TASKCAT)
+print("Tone levels:", list(df["ToneLabel"].cat.categories))
+print("Response metrics:", RESP_METRICS)

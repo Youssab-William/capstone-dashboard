@@ -33,8 +33,8 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-# API keys - NEVER commit these!
-data/keys.json
+# API keys - WARNING: keys.json is now tracked (security risk if repo is public!)
+# data/keys.json
 *.key
 *.pem
 
@@ -45,8 +45,8 @@ data/analysis/*.jsonl
 data/completions.jsonl
 data/logs/*.log
 
-# Legacy code directory
-legacy/
+# Legacy code directory - now included in repo
+# legacy/
 
 # Jupyter
 .ipynb_checkpoints/

@@ -1,0 +1,18 @@
+cols = [c for c in ["Response_SentimentScore","Response_ValidatedPolitenessScore","ResponseLength"] if c in df.columns]
+if len(cols) >= 2:
+    corr = df[cols].corr()
+    print("\n=== Correlation matrix ===")
+    display(corr)
+
+    # Simple heatmap with matplotlib (no seaborn)
+    fig, ax = plt.subplots()
+    cax = ax.matshow(corr.values)
+    fig.colorbar(cax)
+    ax.set_xticks(range(len(cols)))
+    ax.set_yticks(range(len(cols)))
+    ax.set_xticklabels(cols, rotation=45, ha="left")
+    ax.set_yticklabels(cols)
+    plt.title("Correlation Matrix", pad=20)
+    plt.show()
+else:
+    print("Not enough columns for correlation matrix.")

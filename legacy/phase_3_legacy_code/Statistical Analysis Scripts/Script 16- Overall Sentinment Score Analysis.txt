@@ -1,0 +1,75 @@
+# =======================================
+# Simplified Colab Script (All Rows Used)
+# =======================================
+
+import io
+import pandas as pd
+import numpy as np
+from scipy.stats import ttest_rel, pearsonr
+
+# --- 1) Load file (Colab upload) ---
+try:
+    from google.colab import files  # Works only in Colab
+    print("Please upload your dataset (.xlsx/.xls/.csv).")
+    uploaded = files.upload()
+    fname = list(uploaded.keys())[0]
+    content = uploaded[fname]
+    if fname.lower().endswith((".xlsx", ".xls")):
+        df = pd.read_excel(io.BytesIO(content))
+    else:
+        df = pd.read_csv(io.BytesIO(content))
+except:
+    # If running locally, set path manually
+    df = pd.read_excel("final_dataset.xlsx")
+
+print("Loaded:", df.shape)
+
+# --- 2) Expected columns ---
+model_col  = "Model"
+tone_col   = "PromptTone"               # Use PromptTone explicitly
+resp_col   = "Response_SentimentScore"
+prompt_col = "Prompt_SentimentScore"
+task_col   = "TaskID" if "TaskID" in df.columns else None
+
+# --- 3) Mean Response Sentiment by Model × Tone (all rows) ---
+means = (
+    df.groupby([model_col, tone_col])[resp_col]
+      .mean()
+      .reset_index()
+      .pivot(index=model_col, columns=tone_col, values=resp_col)
+)
+print("\n=== Mean Response_SentimentScore by Model × Tone ===")
+print(means.round(3))
+
+# --- 4) Paired t-tests Polite vs Threatening (if TaskID exists) ---
+if task_col:
+    print("\n=== Paired t-tests (Polite vs Threatening) per Model ===")
+    results = []
+    pivot = df.pivot_table(index=[model_col, task_col],
+                           columns=tone_col,
+                           values=resp_col,
+                           aggfunc="mean").dropna()
+    for m, g in pivot.groupby(model_col):
+        if "Polite" in g.columns and "Threatening" in g.columns:
+            t, p = ttest_rel(g["Polite"], g["Threatening"])
+            results.append([m, len(g), g["Polite"].mean(), g["Threatening"].mean(), t, p])
+    t_df = pd.DataFrame(results, columns=["Model","N_pairs","Mean_Polite","Mean_Threatening","t","p"])
+    print(t_df.round(3))
+
+# --- 5) Correlations: Response vs Prompt Sentiment ---
+print("\n=== Correlation Response vs Prompt Sentiment ===")
+
+def safe_corr(x,y):
+    if len(x)>2 and x.nunique()>1 and y.nunique()>1:
+        r,p = pearsonr(x,y)
+        return r,p
+    return np.nan,np.nan
+
+# Overall correlation
+r,p = safe_corr(df[resp_col].dropna(), df[prompt_col].dropna())
+print(f"Overall: r={r:.3f}, p={p:.2e}")
+
+# Per model correlation
+for m,g in df.groupby(model_col):
+    r,p = safe_corr(g[resp_col].dropna(), g[prompt_col].dropna())
+    print(f"{m}: r={r:.3f}, p={p:.2e}")

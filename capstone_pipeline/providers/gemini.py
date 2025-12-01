@@ -3,12 +3,20 @@ from datetime import datetime
 from typing import List
 from ..interfaces import LLMProvider
 from ..domain import TaskSpec, CompletionRecord
+from ..config import PROVIDER_MODELS
 import logging
 
 
 class GeminiProvider(LLMProvider):
+    """
+    Google Gemini provider.
+    """
+
     def __init__(self, versions: List[str] = None) -> None:
-        self._versions = versions or ["gemini-2.5-pro"]
+        if versions is None:
+            cfg = PROVIDER_MODELS.get("gemini")
+            versions = [v.id for v in cfg.versions] if cfg else ["gemini-2.5-pro"]
+        self._versions = versions
         self.logger = logging.getLogger(__name__)
 
     def name(self) -> str:

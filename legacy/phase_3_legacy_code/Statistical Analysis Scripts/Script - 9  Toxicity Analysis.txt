@@ -1,0 +1,23 @@
+tox_col = "RoBERTa_Response_ToxicityScore"
+if tox_col in df.columns and {"Model","PromptTone"}.issubset(df.columns):
+    tox_tab = df.groupby(["Model","PromptTone"])[tox_col].mean().unstack()
+    print("\n=== Mean Response Toxicity by Model & Tone ===")
+    display(tox_tab)
+
+    # Boxplot per tone & model (matplotlib)
+    plt.figure()
+    # Build arrays
+    groups = []
+    labels = []
+    for model in df["Model"].dropna().unique():
+        for tone in ["Polite","Threatening"]:
+            mask = (df["Model"]==model) & (df["PromptTone"]==tone)
+            if mask.any():
+                groups.append(df.loc[mask, tox_col].dropna().values)
+                labels.append(f"{model}\n{tone}")
+    plt.boxplot(groups, labels=labels, showfliers=False)
+    plt.title("Response Toxicity by Model & Tone")
+    plt.ylabel(tox_col)
+    plt.ylim(0, max(0.05, df[tox_col].quantile(0.99)))  # keep y-range sensible
+    plt.xticks(rotation=30)
+    plt.show()

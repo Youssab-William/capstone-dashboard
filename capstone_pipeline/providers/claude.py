@@ -3,12 +3,20 @@ from datetime import datetime
 from typing import List
 from ..interfaces import LLMProvider
 from ..domain import TaskSpec, CompletionRecord
+from ..config import PROVIDER_MODELS
 import logging
 
 
 class ClaudeProvider(LLMProvider):
+    """
+    Anthropic Claude provider.
+    """
+
     def __init__(self, versions: List[str] = None) -> None:
-        self._versions = versions or ["claude-sonnet-4-20250514"]
+        if versions is None:
+            cfg = PROVIDER_MODELS.get("claude")
+            versions = [v.id for v in cfg.versions] if cfg else ["claude-sonnet-4-20250514"]
+        self._versions = versions
         self.logger = logging.getLogger(__name__)
 
     def name(self) -> str:

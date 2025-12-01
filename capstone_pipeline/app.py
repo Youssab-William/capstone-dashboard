@@ -15,6 +15,7 @@ from .providers.deepseek import DeepSeekProvider
 from .providers.gpt import GPTProvider
 from .providers.claude import ClaudeProvider
 from .providers.gemini import GeminiProvider
+from .runner.progress import RunProgressTracker
 
 
 def parse_tasks_file(path: str) -> List[TaskSpec]:
@@ -77,8 +78,10 @@ def main() -> None:
     providers = [DeepSeekProvider(), GPTProvider(), ClaudeProvider(), GeminiProvider()]
     if args.command == "run":
         logger.info("starting full pipeline")
-        res = pipeline.run_all(tasks, providers)
-        logger.info(f"pipeline completed run_id={res.get('run_id','')}")
+        run_id = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+        progress = RunProgressTracker(args.data_dir, run_id)
+        res = pipeline.run_all(tasks, providers, run_id=run_id, progress=progress)
+        logger.info("pipeline completed run_id=%s", res.get("run_id", ""))
     elif args.command == "collect":
         logger.info("starting collect phase")
         pipeline.run_all(tasks, providers)
