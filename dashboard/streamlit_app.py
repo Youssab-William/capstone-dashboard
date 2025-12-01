@@ -2,7 +2,7 @@ import os
 import json
 from pathlib import Path
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
 
 import streamlit as st
 import pandas as pd
@@ -320,7 +320,7 @@ def main():
         if st.sidebar.button("Run New Analysis"):
             # Generate a run_id up front so both the background worker and UI
             # can agree on the same identifier.
-            run_id = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+            run_id = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
             st.session_state["active_run_id"] = run_id
             thread = threading.Thread(
                 target=start_background_run,

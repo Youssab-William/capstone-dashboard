@@ -1,5 +1,5 @@
 from typing import List, Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 from ..interfaces import LLMProvider, MetricsEngine, AnalysisEngine, StorageRepository
 from ..domain import TaskSpec, CompletionRecord
@@ -22,7 +22,7 @@ class Pipeline:
         self.logger = logging.getLogger(__name__)
 
     def _generate_run_id(self) -> str:
-        return datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+        return datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
 
     def run_all(
         self,

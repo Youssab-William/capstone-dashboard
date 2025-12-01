@@ -1,7 +1,7 @@
 import json
 import logging
 from dataclasses import dataclass, asdict, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict
 
@@ -51,7 +51,7 @@ class RunProgressTracker:
     # --- internal helpers -------------------------------------------------
 
     def _now_iso(self) -> str:
-        return datetime.utcnow().isoformat()
+        return datetime.now(timezone.utc).isoformat()
 
     def _load(self) -> RunProgress:
         if not self.path.exists():

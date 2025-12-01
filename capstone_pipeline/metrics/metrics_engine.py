@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 import pandas as pd
 import importlib.util
 import sys
@@ -73,5 +73,5 @@ class ScriptMetricsEngine(MetricsEngine):
         out = df.to_dict(orient="records")
         self.logger.info(f"metrics_output rows={len(out)}")
         for r in out:
-            r["created_at"] = datetime.utcnow().isoformat()
+            r["created_at"] = datetime.now(timezone.utc).isoformat()
         return out

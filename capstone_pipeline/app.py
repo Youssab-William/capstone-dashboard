@@ -5,7 +5,7 @@ import logging
 import os
 from pathlib import Path
 from typing import List
-from datetime import datetime
+from datetime import datetime, timezone
 from .storage.repository import JsonlStorage
 from .metrics.metrics_engine import ScriptMetricsEngine
 from .analysis.analysis_engine import ScriptAnalysisEngine
@@ -78,7 +78,7 @@ def main() -> None:
     providers = [DeepSeekProvider(), GPTProvider(), ClaudeProvider(), GeminiProvider()]
     if args.command == "run":
         logger.info("starting full pipeline")
-        run_id = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+        run_id = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
         progress = RunProgressTracker(args.data_dir, run_id)
         res = pipeline.run_all(tasks, providers, run_id=run_id, progress=progress)
         logger.info("pipeline completed run_id=%s", res.get("run_id", ""))
@@ -103,7 +103,7 @@ def main() -> None:
                 prompt=r.get("prompt",""),
                 response_text=r.get("response_text",""),
                 usage=r.get("usage"),
-                created_at=datetime.fromisoformat(r.get("created_at")) if r.get("created_at") else datetime.utcnow(),
+                created_at=datetime.fromisoformat(r.get("created_at")) if r.get("created_at") else datetime.now(timezone.utc),
             )
         crs = [to_cr(r) for r in completions]
         logger.info(f"computing metrics rows count={len(crs)} run_id={args.run_id}")

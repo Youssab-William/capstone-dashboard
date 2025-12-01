@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 from ..interfaces import LLMProvider
 from ..domain import TaskSpec, CompletionRecord
@@ -53,5 +53,5 @@ class GeminiProvider(LLMProvider):
             prompt=task.prompt,
             response_text=text,
             usage=usage or None,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
