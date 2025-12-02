@@ -212,6 +212,32 @@ def start_background_run(data_dir: str, prompts_file: str, keys_file: str, run_i
             tracker.set_status("error", error="No providers selected for this run.")
             return
         pipeline.run_all(tasks, providers, run_id=run_id, progress=tracker)
+        
+        # After successful run, commit data to GitHub for persistence
+        try:
+            from capstone_pipeline.storage.github_persist import commit_run_data_to_github
+            github_token = os.environ.get("GITHUB_TOKEN")
+            repo_owner = os.environ.get("GITHUB_REPO_OWNER", "Youssab-William")
+            repo_name = os.environ.get("GITHUB_REPO_NAME", "capstone-dashboard")
+            
+            if github_token:
+                success = commit_run_data_to_github(
+                    data_dir=data_dir,
+                    run_id=run_id,
+                    github_token=github_token,
+                    repo_owner=repo_owner,
+                    repo_name=repo_name,
+                )
+                if success and logger:
+                    logger.info(f"Successfully committed run {run_id} data to GitHub")
+                elif logger:
+                    logger.warning(f"Failed to commit run {run_id} data to GitHub (check GITHUB_TOKEN)")
+            elif logger:
+                logger.info(f"GITHUB_TOKEN not set, skipping GitHub commit for run {run_id}")
+        except Exception as e:
+            # Don't fail the run if GitHub commit fails
+            if logger:
+                logger.warning(f"Error committing to GitHub (non-fatal): {e}")
     except Exception as e:
         # If anything goes wrong, persist an error state.
         tracker = RunProgressTracker(data_dir, run_id)

@@ -35,15 +35,17 @@ Thumbs.db
 # Project specific
 # API keys - NEVER commit these!
 data/keys.json
+keys.env
 *.key
 *.pem
 
-# Generated data files - exclude all JSONL data files
-data/completions/*.jsonl
-data/metrics/*.jsonl
-data/analysis/*.jsonl
+# Generated data files - allow committing run data for persistence
+# Only exclude the legacy single completions.jsonl file
 data/completions.jsonl
 data/logs/*.log
+# Note: Run-specific files (data/completions/*.jsonl, data/metrics/*.jsonl, 
+# data/analysis/*.jsonl, data/logs/run_*.json) are now committed to GitHub
+# for persistence across Streamlit Cloud deployments
 
 # Legacy code directory - now included in repo
 # legacy/

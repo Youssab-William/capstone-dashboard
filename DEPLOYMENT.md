@@ -35,7 +35,29 @@ GEMINI_API_KEY = "your-actual-gemini-key-here"
 GOOGLE_API_KEY = "your-actual-google-key-here"
 ```
 
-### Step 3: Get New API Keys
+### Step 3: Set Up GitHub Token for Data Persistence
+
+To persist run data across deployments, you need to set up a GitHub Personal Access Token:
+
+1. Go to: https://github.com/settings/tokens
+2. Click **"Generate new token"** → **"Generate new token (classic)"**
+3. Give it a name like "Streamlit Cloud Data Persistence"
+4. Select scopes: **`repo`** (full control of private repositories)
+5. Click **"Generate token"**
+6. Copy the token (starts with `ghp_`)
+
+Then add it to Streamlit Cloud secrets:
+
+```toml
+[secrets]
+GITHUB_TOKEN = "ghp_your-token-here"
+GITHUB_REPO_OWNER = "Youssab-William"  # Your GitHub username
+GITHUB_REPO_NAME = "capstone-dashboard"  # Your repository name
+```
+
+**Note:** The `GITHUB_REPO_OWNER` and `GITHUB_REPO_NAME` are optional - the code will try to auto-detect them from git, but you can set them explicitly if needed.
+
+### Step 4: Get New API Keys
 
 Since your previous keys were exposed in git and revoked:
 
@@ -61,7 +83,7 @@ Since your previous keys were exposed in git and revoked:
 2. Create a new API key
 3. Set as `GEMINI_API_KEY` (or `GOOGLE_API_KEY` - both work)
 
-### Step 4: Redeploy
+### Step 5: Redeploy
 
 After adding the environment variables:
 1. Click **"Save"** in the settings
@@ -76,6 +98,53 @@ API keys status: {'OPENAI_API_KEY': '✓', 'ANTHROPIC_API_KEY': '✓', ...}
 ```
 
 If you see `✗` for any key, that means the environment variable is not set correctly.
+
+## How Data Persistence Works
+
+### The Problem
+Streamlit Cloud uses an **ephemeral filesystem** - any files written during runtime are lost when:
+- The app shuts down due to inactivity
+- The app is redeployed
+- The container restarts
+
+### The Solution
+The app now automatically commits run data to GitHub after each run completes. This means:
+- ✅ Run data persists across deployments
+- ✅ Data is versioned in git
+- ✅ Multiple deployments can share the same data
+- ✅ Data survives app restarts
+
+### What Gets Committed
+After each run completes, the following files are automatically committed to GitHub:
+- `data/completions/{run_id}.jsonl` - LLM responses
+- `data/metrics/{run_id}.jsonl` - Computed metrics
+- `data/analysis/{run_id}.jsonl` - Analysis results
+- `data/logs/run_{run_id}.json` - Run progress metadata
+
+### How It Works
+1. When you start a new run, data is written to the local filesystem
+2. After the run completes successfully, the app commits the data files to GitHub
+3. On the next deployment/restart, the app reads data from the GitHub repository
+4. The dashboard displays all runs that exist in the repository
+
+### Troubleshooting Data Persistence
+
+#### Data not appearing after deployment
+- Check that `GITHUB_TOKEN` is set correctly
+- Verify the token has `repo` scope permissions
+- Check the logs for GitHub commit errors
+- Ensure the repository name matches your actual repo
+
+#### "GITHUB_TOKEN not set" warning
+- This is normal if you haven't set up the token yet
+- Runs will still work, but data won't persist across deployments
+- Set up the token as described above to enable persistence
+
+#### GitHub commit fails
+- Check that the token is valid and not expired
+- Verify the repository owner/name are correct
+- Check GitHub's rate limits (you shouldn't hit them with normal usage)
+- The run will still complete successfully even if the commit fails
 
 ## How the Code Works
 
@@ -110,4 +179,3 @@ The providers automatically read from environment variables:
 - Wait a few minutes for Streamlit Cloud to redeploy
 - Check the deployment logs for the "API keys status" message
 - Verify the variable names match exactly (case-sensitive!)
-
