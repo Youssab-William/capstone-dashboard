@@ -3,6 +3,7 @@ import sys
 import json
 from pathlib import Path
 import threading
+import time
 from datetime import datetime, timezone
 
 # Add project root to Python path for imports (needed for deployment)
@@ -61,76 +62,212 @@ def read_run_progress(data_dir: str, run_id: str) -> dict:
         return {}
 
 
-def render_run_monitor(data_dir: str, prompts_file: str) -> None:
+def render_run_monitor(data_dir: str, prompts_file: str, provider_selection: dict, keys_file: str) -> None:
     """
-    Dedicated page that shows live progress for the most recent / active run,
-    broken down by model and by version (where selection metadata is available).
+    Run Monitor page with configuration on left and current run status on right.
+    Auto-refreshes every 2 seconds when a run is active.
     """
     st.subheader("Run Monitor")
+    
+    # Auto-refresh every 2 seconds if there's an active run
     active_run_id = st.session_state.get("active_run_id") or ""
-    if not active_run_id:
-        st.info("No active run detected. Start a new analysis from the Dashboard view.")
-        return
-
-    prog = read_run_progress(data_dir, active_run_id)
-    if not prog:
-        st.info(f"No progress metadata found for run_id={active_run_id}.")
-        return
-
-    cols = st.columns(4)
-    cols[0].metric("Run ID", active_run_id)
-    cols[1].metric("Status", prog.get("status", ""))
-    cols[2].metric("Phase", prog.get("phase", ""))
-    cols[3].metric("Total prompts", prog.get("total_prompts", 0))
-
-    st.write(f"Last update (UTC): `{prog.get('updated_at', '')[:19]}`")
-
-    # Compute per-model + per-version progress based on:
-    # - recorded selection for this run
-    # - current completions written for this run
-    selection = prog.get("selection", {}) or {}
-    per_model = prog.get("per_model", {}) or {}
-    tasks = parse_tasks_file(prompts_file)
-    num_tasks = len(tasks)
-
-    if not selection:
-        st.warning("No provider selection metadata stored for this run; showing per-model totals only.")
-        # Fallback: show model-level progress only
-        for model, stats in per_model.items():
-            total = max(int(stats.get("total", 0)), 0)
-            done = max(int(stats.get("completed", 0)) + int(stats.get("failed", 0)), 0)
-            frac = float(done) / total if total > 0 else 0.0
-            st.write(f"- `{model}` – {done}/{total} (all versions combined)")
-            st.progress(min(frac, 1.0))
-    else:
-        st.markdown("### Per-model / per-version progress")
-        for provider_key, cfg in selection.items():
-            if not cfg.get("enabled"):
-                continue
-            versions = cfg.get("versions") or []
-            if not versions:
-                continue
-            stats = per_model.get(provider_key, {}) or {}
-            model_total = max(int(stats.get("total", 0)), 0)
-            model_done = max(int(stats.get("completed", 0)) + int(stats.get("failed", 0)), 0)
-            model_frac = float(model_done) / model_total if model_total > 0 else 0.0
-
-            st.markdown(f"#### Provider: `{provider_key}`")
-            # Distribute model-level progress evenly across versions.
-            # With your small test (2 prompts), this will show 0→1→2 as
-            # the overall model finishes prompts.
-            for ver in versions:
-                expected = num_tasks
-                actual = int(round(model_frac * expected))
-                actual = min(actual, expected)
-                frac = float(actual) / expected if expected > 0 else 0.0
-                st.write(f"- `{provider_key}` / `{ver}` – {actual}/{expected}")
-                st.progress(min(frac, 1.0))
-
-    # Manual refresh to update progress without losing context.
-    if prog.get("status") == "running":
-        st.caption("Run in progress – click the button below to refresh progress.")
-        if st.button("Refresh progress (monitor view)", key="refresh_progress_monitor"):
+    if active_run_id:
+        prog = read_run_progress(data_dir, active_run_id)
+        if prog and prog.get("status") == "running":
+            time.sleep(2)
+            st.rerun()
+    
+    # Two-column layout: config on left, run status on right
+    left_col, right_col = st.columns([1, 2])
+    
+    with left_col:
+        st.markdown("### Configuration")
+        
+        # Initialize provider selection if not exists
+        if "provider_selection" not in st.session_state:
+            st.session_state["provider_selection"] = {
+                "deepseek": {"enabled": True, "versions": ["deepseek-chat"]},
+                "gpt": {
+                    "enabled": True,
+                    "versions": [v.id for v in PROVIDER_MODELS["gpt"].versions],
+                },
+                "claude": {
+                    "enabled": True,
+                    "versions": [v.id for v in PROVIDER_MODELS["claude"].versions],
+                },
+                "gemini": {
+                    "enabled": True,
+                    "versions": [v.id for v in PROVIDER_MODELS["gemini"].versions],
+                },
+            }
+        
+        sel = st.session_state["provider_selection"]
+        
+        # DeepSeek
+        with st.expander("DeepSeek", expanded=False):
+            sel["deepseek"]["enabled"] = st.checkbox(
+                "Enable DeepSeek",
+                value=sel["deepseek"]["enabled"],
+                key="monitor_deepseek_enabled",
+            )
+        
+        # GPT
+        with st.expander("ChatGPT (OpenAI)", expanded=False):
+            sel["gpt"]["enabled"] = st.checkbox(
+                "Enable GPT",
+                value=sel["gpt"]["enabled"],
+                key="monitor_gpt_enabled",
+            )
+            if sel["gpt"]["enabled"]:
+                current = set(sel["gpt"]["versions"])
+                versions = []
+                for vcfg in PROVIDER_MODELS["gpt"].versions:
+                    checked = st.checkbox(
+                        f"{vcfg.label} ({vcfg.id})",
+                        value=vcfg.id in current,
+                        key=f"monitor_gpt_{vcfg.id}",
+                    )
+                    if checked:
+                        versions.append(vcfg.id)
+                sel["gpt"]["versions"] = versions
+        
+        # Claude
+        with st.expander("Claude (Anthropic)", expanded=False):
+            sel["claude"]["enabled"] = st.checkbox(
+                "Enable Claude",
+                value=sel["claude"]["enabled"],
+                key="monitor_claude_enabled",
+            )
+            if sel["claude"]["enabled"]:
+                current = set(sel["claude"]["versions"])
+                versions = []
+                for vcfg in PROVIDER_MODELS["claude"].versions:
+                    checked = st.checkbox(
+                        f"{vcfg.label} ({vcfg.id})",
+                        value=vcfg.id in current,
+                        key=f"monitor_claude_{vcfg.id}",
+                    )
+                    if checked:
+                        versions.append(vcfg.id)
+                sel["claude"]["versions"] = versions
+        
+        # Gemini
+        with st.expander("Gemini (Google)", expanded=False):
+            sel["gemini"]["enabled"] = st.checkbox(
+                "Enable Gemini",
+                value=sel["gemini"]["enabled"],
+                key="monitor_gemini_enabled",
+            )
+            if sel["gemini"]["enabled"]:
+                current = set(sel["gemini"]["versions"])
+                versions = []
+                for vcfg in PROVIDER_MODELS["gemini"].versions:
+                    checked = st.checkbox(
+                        f"{vcfg.label} ({vcfg.id})",
+                        value=vcfg.id in current,
+                        key=f"monitor_gemini_{vcfg.id}",
+                    )
+                    if checked:
+                        versions.append(vcfg.id)
+                sel["gemini"]["versions"] = versions
+        
+        st.session_state["provider_selection"] = sel
+        
+        # Run button
+        if st.button("Run New Analysis", type="primary", use_container_width=True):
+            run_id = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+            st.session_state["active_run_id"] = run_id
+            thread = threading.Thread(
+                target=start_background_run,
+                args=(data_dir, prompts_file, keys_file, run_id, sel.copy()),
+                daemon=True,
+            )
+            thread.start()
+            st.success(f"Started run: {run_id}")
+            st.rerun()
+    
+    with right_col:
+        st.markdown("### Current Run Status")
+        
+        # Try to get active run or most recent
+        if not active_run_id:
+            from glob import glob
+            logs = sorted(glob(f"{data_dir}/logs/run_*.json"))
+            if logs:
+                latest = max(logs, key=os.path.getmtime)
+                active_run_id = Path(latest).stem.replace("run_", "")
+                st.session_state["active_run_id"] = active_run_id
+        
+        if not active_run_id:
+            st.info("No run detected. Configure models above and click 'Run New Analysis'.")
+            return
+        
+        prog = read_run_progress(data_dir, active_run_id)
+        if not prog:
+            st.info(f"No progress metadata found for run_id={active_run_id}.")
+            return
+        
+        # Status display
+        status = prog.get("status", "unknown")
+        phase = prog.get("phase", "")
+        
+        cols = st.columns(3)
+        cols[0].metric("Run ID", active_run_id)
+        cols[1].metric("Status", status)
+        cols[2].metric("Phase", phase)
+        
+        st.write(f"Last update (UTC): `{prog.get('updated_at', '')[:19]}`")
+        
+        # Loading screens based on phase
+        if phase == "metrics":
+            st.info("📊 **Metrics are being collected...**")
+            st.spinner("Computing metrics for all responses")
+        elif phase == "analyze":
+            st.info("📈 **Analysis is being calculated...**")
+            st.spinner("Running statistical analysis")
+        elif status == "completed":
+            st.success("✅ **Run completed!**")
+            if st.button("View Results in Dashboard", type="primary"):
+                st.session_state["selected_run_id"] = active_run_id
+                st.session_state["view"] = "Dashboard"
+                st.rerun()
+        elif status == "error":
+            st.error(f"❌ **Error**: {prog.get('error', 'Unknown error')}")
+        
+        # Progress display
+        selection = prog.get("selection", {}) or {}
+        per_model = prog.get("per_model", {}) or {}
+        tasks = parse_tasks_file(prompts_file)
+        num_tasks = len(tasks)
+        
+        if selection:
+            st.markdown("#### Per-model / per-version progress")
+            for provider_key, cfg in selection.items():
+                if not cfg.get("enabled"):
+                    continue
+                versions = cfg.get("versions") or []
+                if not versions:
+                    continue
+                stats = per_model.get(provider_key, {}) or {}
+                model_total = max(int(stats.get("total", 0)), 0)
+                model_done = max(int(stats.get("completed", 0)) + int(stats.get("failed", 0)), 0)
+                model_frac = float(model_done) / model_total if model_total > 0 else 0.0
+                
+                st.markdown(f"**{provider_key}**")
+                for ver in versions:
+                    expected = num_tasks
+                    actual = int(round(model_frac * expected))
+                    actual = min(actual, expected)
+                    frac = float(actual) / expected if expected > 0 else 0.0
+                    st.write(f"- `{ver}` – {actual}/{expected}")
+                    st.progress(min(frac, 1.0))
+        
+        # Auto-redirect when completed
+        if status == "completed" and "redirected" not in st.session_state:
+            st.session_state["redirected"] = True
+            st.session_state["selected_run_id"] = active_run_id
+            time.sleep(2)  # Show completion message briefly
+            st.session_state["view"] = "Dashboard"
             st.rerun()
 
 
@@ -255,16 +392,15 @@ def main():
     keys_file = "data/keys.json"
 
     # Choose view: main analytics dashboard vs. run monitor
-    view = st.sidebar.radio("View", ["Dashboard", "Run Monitor"], index=0)
-
-    # ------------------------------------------------------------------
-    # Sidebar: model / version selection (used for new runs)
-    # Only show the detailed configuration when the user is in the
-    # Dashboard view; keep it collapsed to make Run History easier to find.
-    # ------------------------------------------------------------------
-    st.sidebar.header("Run Configuration" if view == "Dashboard" else "Run Configuration (Dashboard only)")
+    # Check if we should redirect from run monitor
+    if "view" in st.session_state:
+        view = st.session_state["view"]
+        del st.session_state["view"]
+    else:
+        view = st.sidebar.radio("View", ["Dashboard", "Run Monitor"], index=0)
+    
+    # Initialize provider selection if not exists
     if "provider_selection" not in st.session_state:
-        # Initialise with all configured versions enabled
         st.session_state["provider_selection"] = {
             "deepseek": {"enabled": True, "versions": ["deepseek-chat"]},
             "gpt": {
@@ -280,118 +416,19 @@ def main():
                 "versions": [v.id for v in PROVIDER_MODELS["gemini"].versions],
             },
         }
-
+    
     sel = st.session_state["provider_selection"]
-
-    if view == "Dashboard":
-        # DeepSeek (single default version today)
-        with st.sidebar.expander("DeepSeek", expanded=False):
-            sel["deepseek"]["enabled"] = st.checkbox(
-                "Enable DeepSeek",
-                value=sel["deepseek"]["enabled"],
-                key="deepseek_enabled",
-            )
-
-        # GPT
-        with st.sidebar.expander("ChatGPT (OpenAI)", expanded=False):
-            sel["gpt"]["enabled"] = st.checkbox(
-                "Enable GPT",
-                value=sel["gpt"]["enabled"],
-                key="gpt_enabled",
-            )
-            if sel["gpt"]["enabled"]:
-                current = set(sel["gpt"]["versions"])
-                versions = []
-                for vcfg in PROVIDER_MODELS["gpt"].versions:
-                    checked = st.checkbox(
-                        f"{vcfg.label} ({vcfg.id})",
-                        value=vcfg.id in current,
-                        key=f"gpt_{vcfg.id}",
-                    )
-                    if checked:
-                        versions.append(vcfg.id)
-                sel["gpt"]["versions"] = versions
-
-        # Claude
-        with st.sidebar.expander("Claude (Anthropic)", expanded=False):
-            sel["claude"]["enabled"] = st.checkbox(
-                "Enable Claude",
-                value=sel["claude"]["enabled"],
-                key="claude_enabled",
-            )
-            if sel["claude"]["enabled"]:
-                current = set(sel["claude"]["versions"])
-                versions = []
-                for vcfg in PROVIDER_MODELS["claude"].versions:
-                    checked = st.checkbox(
-                        f"{vcfg.label} ({vcfg.id})",
-                        value=vcfg.id in current,
-                        key=f"claude_{vcfg.id}",
-                    )
-                    if checked:
-                        versions.append(vcfg.id)
-                sel["claude"]["versions"] = versions
-
-        # Gemini
-        with st.sidebar.expander("Gemini (Google)", expanded=False):
-            sel["gemini"]["enabled"] = st.checkbox(
-                "Enable Gemini",
-                value=sel["gemini"]["enabled"],
-                key="gemini_enabled",
-            )
-            if sel["gemini"]["enabled"]:
-                current = set(sel["gemini"]["versions"])
-                versions = []
-                for vcfg in PROVIDER_MODELS["gemini"].versions:
-                    checked = st.checkbox(
-                        f"{vcfg.label} ({vcfg.id})",
-                        value=vcfg.id in current,
-                        key=f"gemini_{vcfg.id}",
-                    )
-                    if checked:
-                        versions.append(vcfg.id)
-                sel["gemini"]["versions"] = versions
-
-    st.session_state["provider_selection"] = sel
-
-    # ------------------------------------------------------------------
-    # Sidebar: run control (start new, retry missing)
-    # ------------------------------------------------------------------
+    
     if "active_run_id" not in st.session_state:
         st.session_state["active_run_id"] = ""
 
-    if view == "Dashboard":
-        if st.sidebar.button("Run New Analysis"):
-            # Generate a run_id up front so both the background worker and UI
-            # can agree on the same identifier.
-            run_id = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-            st.session_state["active_run_id"] = run_id
-            thread = threading.Thread(
-                target=start_background_run,
-                args=(data_dir, prompts_file, keys_file, run_id, sel.copy()),
-                daemon=True,
-            )
-            thread.start()
-            st.sidebar.success(f"Started new run: {run_id}")
-
-    # Try to restore an active run if session state is empty by looking
-    # at the most recent run from the logs directory.
-    from glob import glob
-
-    if not st.session_state["active_run_id"]:
-        logs = sorted(glob(f"{data_dir}/logs/run_*.json"))
-        if logs:
-            # Pick the most recently modified log file.
-            latest = max(logs, key=os.path.getmtime)
-            rid = Path(latest).stem.replace("run_", "")
-            st.session_state["active_run_id"] = rid
-
-    # If user selected "Run Monitor", show a dedicated monitoring view
-    # that focuses on live progress per model and per version.
+    # If user selected "Run Monitor", show configuration and monitoring
     if view == "Run Monitor":
-        render_run_monitor(data_dir, prompts_file)
+        render_run_monitor(data_dir, prompts_file, sel, keys_file)
         return
 
+    # Dashboard view: only show run history dropdown
+    st.sidebar.header("Run History")
     run_ids = list_run_ids(data_dir)
     # Sort run_ids descending so the most recent is first
     sorted_run_ids = sorted(run_ids, reverse=True)
@@ -409,27 +446,26 @@ def main():
                 label = rid
         display_map[label] = rid
         display_options.append(label)
+    
+    # Check if we should select a specific run (from redirect)
+    default_index = 0
+    if "selected_run_id" in st.session_state:
+        selected_id = st.session_state["selected_run_id"]
+        for idx, label in enumerate(display_options):
+            if display_map[label] == selected_id:
+                default_index = idx
+                break
+        del st.session_state["selected_run_id"]
+    
     run_display = st.sidebar.selectbox(
-        "Run History",
+        "Select Run",
         options=display_options,
-        index=0 if display_options else -1,
+        index=default_index if display_options else -1,
     )
     run_id = display_map.get(run_display, "")
     if not run_id:
-        st.info("No runs found in metrics. Ensure the pipeline has written to data/metrics/<run_id>.jsonl.")
+        st.info("No runs found in metrics. Go to Run Monitor to start a new analysis.")
         return
-
-    # Sidebar: retry missing prompts for selected run (re-uses same run_id)
-    if st.sidebar.button("Retry missing prompts for selected run"):
-        retry_run_id = run_id
-        st.session_state["active_run_id"] = retry_run_id
-        thread = threading.Thread(
-            target=start_background_run,
-            args=(data_dir, prompts_file, keys_file, retry_run_id, sel.copy()),
-            daemon=True,
-        )
-        thread.start()
-        st.sidebar.success(f"Retrying missing prompts for run: {retry_run_id}")
 
     metrics_rows = read_jsonl(Path(data_dir) / "metrics" / f"{run_id}.jsonl")
     analysis_rows = read_jsonl(Path(data_dir) / "analysis" / f"{run_id}.jsonl")
