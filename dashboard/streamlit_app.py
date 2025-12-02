@@ -74,7 +74,11 @@ def render_run_monitor(data_dir: str, prompts_file: str, provider_selection: dic
     if active_run_id:
         prog = read_run_progress(data_dir, active_run_id)
         if prog and prog.get("status") == "running":
+            # Use placeholder to trigger auto-refresh
+            placeholder = st.empty()
+            placeholder.info("🔄 Auto-refreshing every 2 seconds...")
             time.sleep(2)
+            placeholder.empty()
             st.rerun()
     
     # Two-column layout: config on left, run status on right
