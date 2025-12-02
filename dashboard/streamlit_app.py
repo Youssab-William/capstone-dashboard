@@ -62,9 +62,9 @@ def read_run_progress(data_dir: str, run_id: str) -> dict:
         return {}
 
 
-def render_run_monitor(data_dir: str, prompts_file: str, provider_selection: dict, keys_file: str) -> None:
+def render_run_monitor(data_dir: str, prompts_file: str) -> None:
     """
-    Run Monitor page with configuration on left and current run status on right.
+    Run Monitor page showing current/last run status.
     Auto-refreshes every 2 seconds when a run is active.
     """
     st.subheader("Run Monitor")
@@ -84,116 +84,86 @@ def render_run_monitor(data_dir: str, prompts_file: str, provider_selection: dic
             """, unsafe_allow_html=True)
             st.info("🔄 Auto-refreshing every 2 seconds...")
     
-    # Two-column layout: config on left, run status on right
-    left_col, right_col = st.columns([1, 2])
+    # Try to get active run or most recent
+    if not active_run_id:
+        from glob import glob
+        logs = sorted(glob(f"{data_dir}/logs/run_*.json"))
+        if logs:
+            latest = max(logs, key=os.path.getmtime)
+            active_run_id = Path(latest).stem.replace("run_", "")
+            st.session_state["active_run_id"] = active_run_id
     
-    with left_col:
-        st.markdown("### Configuration")
-        
-        # Initialize provider selection if not exists
-        if "provider_selection" not in st.session_state:
-            st.session_state["provider_selection"] = {
-                "deepseek": {"enabled": True, "versions": ["deepseek-chat"]},
-                "gpt": {
-                    "enabled": True,
-                    "versions": [v.id for v in PROVIDER_MODELS["gpt"].versions],
-                },
-                "claude": {
-                    "enabled": True,
-                    "versions": [v.id for v in PROVIDER_MODELS["claude"].versions],
-                },
-                "gemini": {
-                    "enabled": True,
-                    "versions": [v.id for v in PROVIDER_MODELS["gemini"].versions],
-                },
-            }
-        
-        sel = st.session_state["provider_selection"]
-        
-        # DeepSeek
-        with st.expander("DeepSeek", expanded=False):
-            sel["deepseek"]["enabled"] = st.checkbox(
-                "Enable DeepSeek",
-                value=sel["deepseek"]["enabled"],
-                key="monitor_deepseek_enabled",
-            )
-        
-        # GPT
-        with st.expander("ChatGPT (OpenAI)", expanded=False):
-            sel["gpt"]["enabled"] = st.checkbox(
-                "Enable GPT",
-                value=sel["gpt"]["enabled"],
-                key="monitor_gpt_enabled",
-            )
-            if sel["gpt"]["enabled"]:
-                current = set(sel["gpt"]["versions"])
-                versions = []
-                for vcfg in PROVIDER_MODELS["gpt"].versions:
-                    checked = st.checkbox(
-                        f"{vcfg.label} ({vcfg.id})",
-                        value=vcfg.id in current,
-                        key=f"monitor_gpt_{vcfg.id}",
-                    )
-                    if checked:
-                        versions.append(vcfg.id)
-                sel["gpt"]["versions"] = versions
-        
-        # Claude
-        with st.expander("Claude (Anthropic)", expanded=False):
-            sel["claude"]["enabled"] = st.checkbox(
-                "Enable Claude",
-                value=sel["claude"]["enabled"],
-                key="monitor_claude_enabled",
-            )
-            if sel["claude"]["enabled"]:
-                current = set(sel["claude"]["versions"])
-                versions = []
-                for vcfg in PROVIDER_MODELS["claude"].versions:
-                    checked = st.checkbox(
-                        f"{vcfg.label} ({vcfg.id})",
-                        value=vcfg.id in current,
-                        key=f"monitor_claude_{vcfg.id}",
-                    )
-                    if checked:
-                        versions.append(vcfg.id)
-                sel["claude"]["versions"] = versions
-        
-        # Gemini
-        with st.expander("Gemini (Google)", expanded=False):
-            sel["gemini"]["enabled"] = st.checkbox(
-                "Enable Gemini",
-                value=sel["gemini"]["enabled"],
-                key="monitor_gemini_enabled",
-            )
-            if sel["gemini"]["enabled"]:
-                current = set(sel["gemini"]["versions"])
-                versions = []
-                for vcfg in PROVIDER_MODELS["gemini"].versions:
-                    checked = st.checkbox(
-                        f"{vcfg.label} ({vcfg.id})",
-                        value=vcfg.id in current,
-                        key=f"monitor_gemini_{vcfg.id}",
-                    )
-                    if checked:
-                        versions.append(vcfg.id)
-                sel["gemini"]["versions"] = versions
-        
-        st.session_state["provider_selection"] = sel
-        
-        # Run button
-        if st.button("Run New Analysis", type="primary", use_container_width=True):
-            run_id = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-            st.session_state["active_run_id"] = run_id
-            thread = threading.Thread(
-                target=start_background_run,
-                args=(data_dir, prompts_file, keys_file, run_id, sel.copy()),
-                daemon=True,
-            )
-            thread.start()
-            st.success(f"Started run: {run_id}")
+    if not active_run_id:
+        st.info("No run detected. Configure models in the sidebar and click 'Run New Analysis'.")
+        return
+    
+    prog = read_run_progress(data_dir, active_run_id)
+    if not prog:
+        st.info(f"No progress metadata found for run_id={active_run_id}.")
+        return
+    
+    # Status display
+    status = prog.get("status", "unknown")
+    phase = prog.get("phase", "")
+    
+    cols = st.columns(3)
+    cols[0].metric("Run ID", active_run_id)
+    cols[1].metric("Status", status)
+    cols[2].metric("Phase", phase)
+    
+    st.write(f"Last update (UTC): `{prog.get('updated_at', '')[:19]}`")
+    
+    # Loading screens based on phase
+    if phase == "metrics":
+        st.info("📊 **Metrics are being collected...**")
+        st.spinner("Computing metrics for all responses")
+    elif phase == "analyze":
+        st.info("📈 **Analysis is being calculated...**")
+        st.spinner("Running statistical analysis")
+    elif status == "completed":
+        st.success("✅ **Run completed!**")
+        if st.button("View Results in Dashboard", type="primary"):
+            st.session_state["selected_run_id"] = active_run_id
+            st.session_state["view"] = "Dashboard"
             st.rerun()
+    elif status == "error":
+        st.error(f"❌ **Error**: {prog.get('error', 'Unknown error')}")
     
-    with right_col:
+    # Progress display
+    selection = prog.get("selection", {}) or {}
+    per_model = prog.get("per_model", {}) or {}
+    tasks = parse_tasks_file(prompts_file)
+    num_tasks = len(tasks)
+    
+    if selection:
+        st.markdown("#### Per-model / per-version progress")
+        for provider_key, cfg in selection.items():
+            if not cfg.get("enabled"):
+                continue
+            versions = cfg.get("versions") or []
+            if not versions:
+                continue
+            stats = per_model.get(provider_key, {}) or {}
+            model_total = max(int(stats.get("total", 0)), 0)
+            model_done = max(int(stats.get("completed", 0)) + int(stats.get("failed", 0)), 0)
+            model_frac = float(model_done) / model_total if model_total > 0 else 0.0
+            
+            st.markdown(f"**{provider_key}**")
+            for ver in versions:
+                expected = num_tasks
+                actual = int(round(model_frac * expected))
+                actual = min(actual, expected)
+                frac = float(actual) / expected if expected > 0 else 0.0
+                st.write(f"- `{ver}` – {actual}/{expected}")
+                st.progress(min(frac, 1.0))
+    
+    # Auto-redirect when completed
+    if status == "completed" and "redirected" not in st.session_state:
+        st.session_state["redirected"] = True
+        st.session_state["selected_run_id"] = active_run_id
+        time.sleep(2)  # Show completion message briefly
+        st.session_state["view"] = "Dashboard"
+        st.rerun()
         st.markdown("### Current Run Status")
         
         # Try to get active run or most recent
@@ -429,9 +399,96 @@ def main():
     if "active_run_id" not in st.session_state:
         st.session_state["active_run_id"] = ""
 
-    # If user selected "Run Monitor", show configuration and monitoring
+    # Sidebar content based on view
     if view == "Run Monitor":
-        render_run_monitor(data_dir, prompts_file, sel, keys_file)
+        # Show configuration in sidebar for Run Monitor
+        st.sidebar.header("Run Configuration")
+        
+        # DeepSeek
+        with st.sidebar.expander("DeepSeek", expanded=False):
+            sel["deepseek"]["enabled"] = st.checkbox(
+                "Enable DeepSeek",
+                value=sel["deepseek"]["enabled"],
+                key="monitor_deepseek_enabled",
+            )
+        
+        # GPT
+        with st.sidebar.expander("ChatGPT (OpenAI)", expanded=False):
+            sel["gpt"]["enabled"] = st.checkbox(
+                "Enable GPT",
+                value=sel["gpt"]["enabled"],
+                key="monitor_gpt_enabled",
+            )
+            if sel["gpt"]["enabled"]:
+                current = set(sel["gpt"]["versions"])
+                versions = []
+                for vcfg in PROVIDER_MODELS["gpt"].versions:
+                    checked = st.checkbox(
+                        f"{vcfg.label} ({vcfg.id})",
+                        value=vcfg.id in current,
+                        key=f"monitor_gpt_{vcfg.id}",
+                    )
+                    if checked:
+                        versions.append(vcfg.id)
+                sel["gpt"]["versions"] = versions
+        
+        # Claude
+        with st.sidebar.expander("Claude (Anthropic)", expanded=False):
+            sel["claude"]["enabled"] = st.checkbox(
+                "Enable Claude",
+                value=sel["claude"]["enabled"],
+                key="monitor_claude_enabled",
+            )
+            if sel["claude"]["enabled"]:
+                current = set(sel["claude"]["versions"])
+                versions = []
+                for vcfg in PROVIDER_MODELS["claude"].versions:
+                    checked = st.checkbox(
+                        f"{vcfg.label} ({vcfg.id})",
+                        value=vcfg.id in current,
+                        key=f"monitor_claude_{vcfg.id}",
+                    )
+                    if checked:
+                        versions.append(vcfg.id)
+                sel["claude"]["versions"] = versions
+        
+        # Gemini
+        with st.sidebar.expander("Gemini (Google)", expanded=False):
+            sel["gemini"]["enabled"] = st.checkbox(
+                "Enable Gemini",
+                value=sel["gemini"]["enabled"],
+                key="monitor_gemini_enabled",
+            )
+            if sel["gemini"]["enabled"]:
+                current = set(sel["gemini"]["versions"])
+                versions = []
+                for vcfg in PROVIDER_MODELS["gemini"].versions:
+                    checked = st.checkbox(
+                        f"{vcfg.label} ({vcfg.id})",
+                        value=vcfg.id in current,
+                        key=f"monitor_gemini_{vcfg.id}",
+                    )
+                    if checked:
+                        versions.append(vcfg.id)
+                sel["gemini"]["versions"] = versions
+        
+        st.session_state["provider_selection"] = sel
+        
+        # Run button in sidebar
+        if st.sidebar.button("Run New Analysis", type="primary", use_container_width=True):
+            run_id = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+            st.session_state["active_run_id"] = run_id
+            thread = threading.Thread(
+                target=start_background_run,
+                args=(data_dir, prompts_file, keys_file, run_id, sel.copy()),
+                daemon=True,
+            )
+            thread.start()
+            st.sidebar.success(f"Started run: {run_id}")
+            st.rerun()
+        
+        # Show run monitor in main area
+        render_run_monitor(data_dir, prompts_file)
         return
 
     # Dashboard view: only show run history dropdown
