@@ -385,21 +385,29 @@ def main():
     prompts_file = "prompts.txt"
     keys_file = "data/keys.json"
 
-    # Choose view: main analytics dashboard vs. run monitor
-    # Check URL params or session state for view selection
+    # Always show view selector in sidebar
+    # Get current view from session state or default to Dashboard
+    current_view = st.session_state.get("view", "Dashboard")
+    
+    # Check URL params for view (for redirects)
     query_params = st.query_params
     if "view" in query_params:
-        view = query_params["view"]
-        if view not in ["Dashboard", "Run Monitor"]:
-            view = "Dashboard"
-    elif "view" in st.session_state:
-        view = st.session_state["view"]
-        # Don't delete it, keep it for consistency
-    else:
-        view = st.sidebar.radio("View", ["Dashboard", "Run Monitor"], index=0)
+        url_view = query_params["view"]
+        if url_view in ["Dashboard", "Run Monitor"]:
+            current_view = url_view
+            st.session_state["view"] = current_view
     
-    # Update session state with current view
-    st.session_state["view"] = view
+    # Always display the radio button - this is the main way to switch views
+    view = st.sidebar.radio("View", ["Dashboard", "Run Monitor"], 
+                           index=0 if current_view == "Dashboard" else 1,
+                           key="view_selector")
+    
+    # Update session state when view changes
+    if view != current_view:
+        st.session_state["view"] = view
+        # Clear query params when manually switching
+        if "view" in query_params:
+            st.query_params.clear()
     
     # Initialize provider selection if not exists
     if "provider_selection" not in st.session_state:
@@ -426,7 +434,8 @@ def main():
 
     # Sidebar content based on view
     if view == "Run Monitor":
-        # Show configuration in sidebar for Run Monitor
+        # Show configuration in sidebar for Run Monitor (below the View radio)
+        st.sidebar.markdown("---")
         st.sidebar.header("Run Configuration")
         
         # DeepSeek
@@ -516,7 +525,8 @@ def main():
         render_run_monitor(data_dir, prompts_file)
         return
 
-    # Dashboard view: only show run history dropdown
+    # Dashboard view: show run history dropdown (below the View radio)
+    st.sidebar.markdown("---")
     st.sidebar.header("Run History")
     run_ids = list_run_ids(data_dir)
     # Sort run_ids descending so the most recent is first
