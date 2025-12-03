@@ -617,8 +617,8 @@ def main():
                     "PromptTone:N",
                     alt.Tooltip(f"{metric}:Q", format=".3f"),
                 ],
-            ).properties(width="stretch")
-            st.altair_chart(chart)
+            )
+            st.altair_chart(chart, use_container_width=True)
 
     with tabs[1]:
         st.subheader("Tone deltas (polite − threatening)")
@@ -633,8 +633,8 @@ def main():
                     x=alt.X("Model:N"),
                     y=alt.Y("Delta_Sentiment_PoliteMinusThreatening:Q"),
                     color=alt.Color("Model:N"),
-                ).properties(width="stretch")
-                st.altair_chart(chart)
+                )
+                st.altair_chart(chart, use_container_width=True)
             else:
                 st.info("No delta artifacts found.")
         else:
@@ -652,15 +652,15 @@ def main():
                     cat_field = "TaskCategory" if "TaskCategory" in overall.columns else ("TaskDescription" if "TaskDescription" in overall.columns else None)
                     chart = alt.Chart(overall).mark_bar().encode(
                         x=alt.X(f"{cat_field}:N"), y=alt.Y(f"{metric}:Q"), color="PromptTone:N"
-                    ).properties(height=300, width="stretch")
-                    st.altair_chart(chart)
+                    ).properties(height=300)
+                    st.altair_chart(chart, use_container_width=True)
                 per_model = pd.DataFrame(obj.get("per_model", []))
                 if not per_model.empty:
                     cat_field_pm = "TaskCategory" if "TaskCategory" in per_model.columns else ("TaskDescription" if "TaskDescription" in per_model.columns else None)
                     chart_pm = alt.Chart(per_model).mark_bar().encode(
                         x=alt.X(f"{cat_field_pm}:N"), y=alt.Y(f"{metric}:Q"), color="PromptTone:N", column="Model:N"
-                    ).properties(height=300, width="stretch")
-                    st.altair_chart(chart_pm)
+                    ).properties(height=300)
+                    st.altair_chart(chart_pm, use_container_width=True)
         else:
             st.info("No analysis artifacts found.")
 
@@ -757,8 +757,8 @@ def main():
                     st.dataframe(summary)
                     chart = alt.Chart(summary).mark_bar().encode(
                         x="Model:N", y="MeanDiff:Q", color="Model:N"
-                    ).properties(width="stretch")
-                    st.altair_chart(chart)
+                    )
+                    st.altair_chart(chart, use_container_width=True)
         else:
             st.info("No analysis artifacts found.")
 
