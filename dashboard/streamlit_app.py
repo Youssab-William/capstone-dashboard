@@ -121,10 +121,10 @@ def render_run_monitor(data_dir: str, prompts_file: str) -> None:
         st.info("📈 **Analysis is being calculated...**")
         st.spinner("Running statistical analysis")
     elif status == "completed":
-        st.success("✅ **Run completed!**")
-        if st.button("View Results in Dashboard", type="primary"):
-            st.session_state["selected_run_id"] = active_run_id
-            st.session_state["view"] = "Dashboard"
+        st.success("✅ **Run completed!** Redirecting to Dashboard...")
+        if st.button("View Results in Dashboard Now", type="primary"):
+            st.query_params["view"] = "Dashboard"
+            st.query_params["run"] = active_run_id
             st.rerun()
     elif status == "error":
         st.error(f"❌ **Error**: {prog.get('error', 'Unknown error')}")
@@ -157,13 +157,25 @@ def render_run_monitor(data_dir: str, prompts_file: str) -> None:
                 st.write(f"- `{ver}` – {actual}/{expected}")
                 st.progress(min(frac, 1.0))
     
-    # Auto-redirect when completed
-    if status == "completed" and "redirected" not in st.session_state:
-        st.session_state["redirected"] = True
-        st.session_state["selected_run_id"] = active_run_id
-        time.sleep(2)  # Show completion message briefly
-        st.session_state["view"] = "Dashboard"
-        st.rerun()
+    # Manual refresh button
+    if status == "running":
+        if st.button("🔄 Refresh Progress", type="primary"):
+            st.rerun()
+    
+    # Auto-redirect when completed (but don't break sidebar)
+    if status == "completed":
+        if "redirected" not in st.session_state or st.session_state.get("redirected_run_id") != active_run_id:
+            st.session_state["redirected"] = True
+            st.session_state["redirected_run_id"] = active_run_id
+            st.session_state["selected_run_id"] = active_run_id
+            # Use JavaScript to redirect after showing message
+            st.markdown("""
+                <script>
+                    setTimeout(function(){
+                        window.location.href = window.location.pathname + "?view=Dashboard&run=" + arguments[0];
+                    }, 2000);
+                </script>
+            """, unsafe_allow_html=True)
         st.markdown("### Current Run Status")
         
         # Try to get active run or most recent
@@ -369,12 +381,20 @@ def main():
     keys_file = "data/keys.json"
 
     # Choose view: main analytics dashboard vs. run monitor
-    # Check if we should redirect from run monitor
-    if "view" in st.session_state:
+    # Check URL params or session state for view selection
+    query_params = st.query_params
+    if "view" in query_params:
+        view = query_params["view"]
+        if view not in ["Dashboard", "Run Monitor"]:
+            view = "Dashboard"
+    elif "view" in st.session_state:
         view = st.session_state["view"]
-        del st.session_state["view"]
+        # Don't delete it, keep it for consistency
     else:
         view = st.sidebar.radio("View", ["Dashboard", "Run Monitor"], index=0)
+    
+    # Update session state with current view
+    st.session_state["view"] = view
     
     # Initialize provider selection if not exists
     if "provider_selection" not in st.session_state:
@@ -511,15 +531,20 @@ def main():
         display_map[label] = rid
         display_options.append(label)
     
-    # Check if we should select a specific run (from redirect)
+    # Check if we should select a specific run (from redirect or URL param)
     default_index = 0
-    if "selected_run_id" in st.session_state:
+    selected_id = None
+    if "run" in query_params:
+        selected_id = query_params["run"]
+    elif "selected_run_id" in st.session_state:
         selected_id = st.session_state["selected_run_id"]
+        del st.session_state["selected_run_id"]
+    
+    if selected_id:
         for idx, label in enumerate(display_options):
             if display_map[label] == selected_id:
                 default_index = idx
                 break
-        del st.session_state["selected_run_id"]
     
     run_display = st.sidebar.selectbox(
         "Select Run",
