@@ -8,7 +8,14 @@ Based on validated methodology from computational social science research.
 import pandas as pd
 import numpy as np
 from typing import Optional, Dict, Any
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+# Support both module naming conventions: `vaderSentiment` (classic) and
+# `vadersentiment` (sometimes used by installers). This avoids runtime
+# ImportError when the distribution name differs from the import name.
+try:
+    from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+except ImportError:  # pragma: no cover - defensive fallback
+    from vadersentiment import SentimentIntensityAnalyzer
 
 
 class SentimentAnalyzer:
