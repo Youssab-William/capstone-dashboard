@@ -347,6 +347,8 @@ def start_background_run(data_dir: str, prompts_file: str, keys_file: str, run_i
             repo_name = os.environ.get("GITHUB_REPO_NAME", "capstone-dashboard")
             
             if github_token:
+                if logger:
+                    logger.info(f"🔄 Attempting to commit run {run_id} data to GitHub...")
                 success = commit_run_data_to_github(
                     data_dir=data_dir,
                     run_id=run_id,
@@ -354,12 +356,15 @@ def start_background_run(data_dir: str, prompts_file: str, keys_file: str, run_i
                     repo_owner=repo_owner,
                     repo_name=repo_name,
                 )
-                if success and logger:
-                    logger.info(f"Successfully committed run {run_id} data to GitHub")
-                elif logger:
-                    logger.warning(f"Failed to commit run {run_id} data to GitHub (check GITHUB_TOKEN)")
-            elif logger:
-                logger.info(f"GITHUB_TOKEN not set, skipping GitHub commit for run {run_id}")
+                if success:
+                    if logger:
+                        logger.info(f"✅ Successfully committed run {run_id} data to GitHub")
+                else:
+                    if logger:
+                        logger.warning(f"❌ Failed to commit run {run_id} data to GitHub. Check GITHUB_TOKEN and repo permissions.")
+            else:
+                if logger:
+                    logger.warning(f"⚠️ GITHUB_TOKEN not set. Run {run_id} data will NOT persist across deployments.")
         except Exception as e:
             # Don't fail the run if GitHub commit fails
             if logger:
