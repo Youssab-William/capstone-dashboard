@@ -68,23 +68,9 @@ def render_run_monitor(data_dir: str, prompts_file: str) -> None:
     Auto-refreshes every 2 seconds when a run is active.
     """
     st.subheader("Run Monitor")
-    
-    # Auto-refresh every 2 seconds if there's an active run
+
+    # Determine active run (from session or most recent log)
     active_run_id = st.session_state.get("active_run_id") or ""
-    if active_run_id:
-        prog = read_run_progress(data_dir, active_run_id)
-        if prog and prog.get("status") == "running":
-            # Auto-refresh using JavaScript
-            st.markdown("""
-                <script>
-                    setTimeout(function(){
-                        window.location.reload(1);
-                    }, 2000);
-                </script>
-            """, unsafe_allow_html=True)
-            st.info("🔄 Auto-refreshing every 2 seconds...")
-    
-    # Try to get active run or most recent
     if not active_run_id:
         from glob import glob
         logs = sorted(glob(f"{data_dir}/logs/run_*.json"))
@@ -92,15 +78,24 @@ def render_run_monitor(data_dir: str, prompts_file: str) -> None:
             latest = max(logs, key=os.path.getmtime)
             active_run_id = Path(latest).stem.replace("run_", "")
             st.session_state["active_run_id"] = active_run_id
-    
+
     if not active_run_id:
         st.info("No run detected. Configure models in the sidebar and click 'Run New Analysis'.")
         return
-    
+
     prog = read_run_progress(data_dir, active_run_id)
     if not prog:
         st.info(f"No progress metadata found for run_id={active_run_id}.")
         return
+
+    # Auto-refresh every 2 seconds if the run is still running
+    if prog.get("status") == "running":
+        st_autorefresh = getattr(st, "autorefresh", None)
+        if st_autorefresh is not None:
+            st_autorefresh(interval=2000, key="run_monitor_autorefresh")
+        else:
+            # Fallback: show hint to manually refresh
+            st.caption("🔄 Run in progress – click 'Refresh Progress' to update.")
     
     # Status display
     status = prog.get("status", "unknown")
@@ -157,7 +152,7 @@ def render_run_monitor(data_dir: str, prompts_file: str) -> None:
                 st.write(f"- `{ver}` – {actual}/{expected}")
                 st.progress(min(frac, 1.0))
     
-    # Manual refresh button
+    # Manual refresh button (always available when running)
     if status == "running":
         if st.button("🔄 Refresh Progress", type="primary"):
             st.rerun()
@@ -616,9 +611,14 @@ def main():
                 x=alt.X("Model:N"),
                 y=alt.Y(f"{metric}:Q"),
                 color=alt.Color("PromptTone:N"),
-                tooltip=["Model:N", "Version:N", "PromptTone:N", alt.Tooltip(f"{metric}:Q", format=".3f")]
-            ).properties(width=600)
-            st.altair_chart(chart, use_container_width=True)
+                tooltip=[
+                    "Model:N",
+                    "Version:N",
+                    "PromptTone:N",
+                    alt.Tooltip(f"{metric}:Q", format=".3f"),
+                ],
+            ).properties(width="stretch")
+            st.altair_chart(chart)
 
     with tabs[1]:
         st.subheader("Tone deltas (polite − threatening)")
@@ -632,9 +632,9 @@ def main():
                 chart = alt.Chart(deltas).mark_bar().encode(
                     x=alt.X("Model:N"),
                     y=alt.Y("Delta_Sentiment_PoliteMinusThreatening:Q"),
-                    color=alt.Color("Model:N")
-                )
-                st.altair_chart(chart, use_container_width=True)
+                    color=alt.Color("Model:N"),
+                ).properties(width="stretch")
+                st.altair_chart(chart)
             else:
                 st.info("No delta artifacts found.")
         else:
@@ -652,15 +652,15 @@ def main():
                     cat_field = "TaskCategory" if "TaskCategory" in overall.columns else ("TaskDescription" if "TaskDescription" in overall.columns else None)
                     chart = alt.Chart(overall).mark_bar().encode(
                         x=alt.X(f"{cat_field}:N"), y=alt.Y(f"{metric}:Q"), color="PromptTone:N"
-                    ).properties(height=300)
-                    st.altair_chart(chart, use_container_width=True)
+                    ).properties(height=300, width="stretch")
+                    st.altair_chart(chart)
                 per_model = pd.DataFrame(obj.get("per_model", []))
                 if not per_model.empty:
                     cat_field_pm = "TaskCategory" if "TaskCategory" in per_model.columns else ("TaskDescription" if "TaskDescription" in per_model.columns else None)
                     chart_pm = alt.Chart(per_model).mark_bar().encode(
                         x=alt.X(f"{cat_field_pm}:N"), y=alt.Y(f"{metric}:Q"), color="PromptTone:N", column="Model:N"
-                    ).properties(height=300)
-                    st.altair_chart(chart_pm, use_container_width=True)
+                    ).properties(height=300, width="stretch")
+                    st.altair_chart(chart_pm)
         else:
             st.info("No analysis artifacts found.")
 
@@ -757,8 +757,8 @@ def main():
                     st.dataframe(summary)
                     chart = alt.Chart(summary).mark_bar().encode(
                         x="Model:N", y="MeanDiff:Q", color="Model:N"
-                    )
-                    st.altair_chart(chart, use_container_width=True)
+                    ).properties(width="stretch")
+                    st.altair_chart(chart)
         else:
             st.info("No analysis artifacts found.")
 

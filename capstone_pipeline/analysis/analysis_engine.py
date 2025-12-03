@@ -117,20 +117,42 @@ class ScriptAnalysisEngine(AnalysisEngine):
 
         # Paired tests (Polite vs Threatening) per TaskID × Model
         paired_tests = {"per_metric": {}, "summary": {}}
+
         def compute_paired(df_in: pd.DataFrame, metric: str) -> Dict[str, any]:
-            out_rows = []
-            summary_rows = []
+            """
+            Compute per-model paired differences between Polite and Threatening tones.
+
+            Robust to cases where only one tone is present for a given model by
+            simply skipping that model instead of raising a KeyError.
+            """
+            out_rows: List[Dict[str, Any]] = []
+            summary_rows: List[Dict[str, Any]] = []
             for m in df_in["Model"].dropna().unique().tolist():
                 sub = df_in[df_in["Model"] == m]
-                piv = sub.pivot_table(index=["TaskID"], columns=tone_col, values=metric, aggfunc="mean")
-                piv = piv.dropna(subset=["Polite", "Threatening"], how="any") if set(["Polite", "Threatening"]).issubset(piv.columns) else piv
+                piv = sub.pivot_table(
+                    index=["TaskID"], columns=tone_col, values=metric, aggfunc="mean"
+                )
+                # Require BOTH Polite and Threatening columns to be present
+                if not {"Polite", "Threatening"}.issubset(set(piv.columns)):
+                    continue
+                # Drop rows where either tone is missing
+                piv = piv.dropna(subset=["Polite", "Threatening"], how="any")
                 if piv.empty:
                     continue
                 diffs = (piv["Polite"].fillna(0) - piv["Threatening"].fillna(0)).tolist()
                 for tid, d in zip(piv.index.tolist(), diffs):
-                    out_rows.append({"Model": m, "TaskID": tid, "Metric": metric, "Diff_PoliteMinusThreatening": float(d)})
+                    out_rows.append(
+                        {
+                            "Model": m,
+                            "TaskID": tid,
+                            "Metric": metric,
+                            "Diff_PoliteMinusThreatening": float(d),
+                        }
+                    )
                 mean_diff = float(pd.Series(diffs).mean()) if diffs else 0.0
-                summary_rows.append({"Model": m, "Metric": metric, "MeanDiff": mean_diff, "N": len(diffs)})
+                summary_rows.append(
+                    {"Model": m, "Metric": metric, "MeanDiff": mean_diff, "N": len(diffs)}
+                )
             return {"rows": out_rows, "summary": summary_rows}
 
         for metric in [
