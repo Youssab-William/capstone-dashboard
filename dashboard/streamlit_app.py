@@ -326,8 +326,13 @@ def start_background_run(data_dir: str, prompts_file: str, keys_file: str, run_i
             repo_owner = os.environ.get("GITHUB_REPO_OWNER", "Youssab-William")
             repo_name = os.environ.get("GITHUB_REPO_NAME", "capstone-dashboard")
 
+            # Helper function to safely set github status (backward compatible)
+            def set_github_status(status: str, message: str):
+                if hasattr(tracker, 'set_github_commit_status'):
+                    tracker.set_github_commit_status(status, message)
+
             if github_token:
-                tracker.set_github_commit_status("pending", "Attempting to commit to GitHub...")
+                set_github_status("pending", "Attempting to commit to GitHub...")
                 if logger:
                     logger.info(f"🔄 Attempting to commit run {run_id} data to GitHub...")
 
@@ -340,20 +345,21 @@ def start_background_run(data_dir: str, prompts_file: str, keys_file: str, run_i
                 )
 
                 if success:
-                    tracker.set_github_commit_status("success", f"Successfully committed to {repo_owner}/{repo_name}")
+                    set_github_status("success", f"Successfully committed to {repo_owner}/{repo_name}")
                     if logger:
                         logger.info(f"✅ Successfully committed run {run_id} data to GitHub")
                 else:
-                    tracker.set_github_commit_status("failed", "Failed to commit. Check GITHUB_TOKEN and repo permissions.")
+                    set_github_status("failed", "Failed to commit. Check GITHUB_TOKEN and repo permissions.")
                     if logger:
                         logger.warning(f"❌ Failed to commit run {run_id} data to GitHub. Check GITHUB_TOKEN and repo permissions.")
             else:
-                tracker.set_github_commit_status("skipped", "GITHUB_TOKEN not set. Data will not persist across deployments.")
+                set_github_status("skipped", "GITHUB_TOKEN not set. Data will not persist across deployments.")
                 if logger:
                     logger.warning(f"⚠️ GITHUB_TOKEN not set. Run {run_id} data will NOT persist across deployments.")
         except Exception as e:
             # Don't fail the run if GitHub commit fails
-            tracker.set_github_commit_status("error", f"Exception during commit: {str(e)}")
+            if hasattr(tracker, 'set_github_commit_status'):
+                tracker.set_github_commit_status("error", f"Exception during commit: {str(e)}")
             if logger:
                 logger.warning(f"Error committing to GitHub (non-fatal): {e}")
     except Exception as e:
