@@ -892,7 +892,7 @@ After completion:
 - Organized by table and run_id partitions
 
 **3. Metrics Engine** (`capstone_pipeline/metrics/`)
-- `ScriptMetricsEngine`: Computes 40+ metrics
+- `ScriptMetricsEngine`: Computes metrics values.
 - Uses legacy analysis modules for sentiment, toxicity, politeness
 
 **4. Analysis Engine** (`capstone_pipeline/analysis/`)
@@ -1081,13 +1081,13 @@ Each run creates three JSONL files:
 ### Common Questions
 
 **Q: How many API calls per run?**
-A: 2 per task per model version (one polite, one threatening). Default: 9 tasks × N versions.
+A: 2 per task per model version (one polite, one threatening). Current Default: 1 task × 9 versions = 18 API Calls
 
 **Q: How much does a run cost?**
-A: Depends on models. Estimate: $0.50-$2.00 per full run with all models.
+A: Depends on models and tasks. Estimate: $2.50-$5.00 per full run with all models.
 
 **Q: Can I add custom tasks?**
-A: Yes! Edit `prompts.txt` (JSON format).
+A: Yes! Edit `prompts.txt` (JSON format). See all_prompts.txt for a comprehensive version of 120 prompts.
 
 **Q: Can I export data?**
 A: Yes! Use Prompts tab or access JSONL files directly.
@@ -1097,6 +1097,5 @@ A: Use Run History dropdown + screenshots/exports.
 
 ---
 
-**Dashboard Version**: 2.0
 **Last Updated**: December 2025
-**Maintainer**: Youssab William & Team
+**Maintainer**: Youssab William
