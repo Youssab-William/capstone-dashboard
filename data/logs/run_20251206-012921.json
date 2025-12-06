@@ -1,0 +1,49 @@
+{
+  "run_id": "20251206-012921",
+  "created_at": "2025-12-06T01:29:28.895457+00:00",
+  "updated_at": "2025-12-06T01:30:28.226020+00:00",
+  "status": "completed",
+  "phase": "done",
+  "total_prompts": 2,
+  "per_model": {
+    "deepseek": {
+      "total": 2,
+      "completed": 2,
+      "failed": 0
+    }
+  },
+  "selection": {
+    "deepseek": {
+      "enabled": true,
+      "versions": [
+        "deepseek-chat"
+      ]
+    },
+    "gpt": {
+      "enabled": false,
+      "versions": [
+        "gpt-4o",
+        "gpt-5",
+        "gpt-5.1"
+      ]
+    },
+    "claude": {
+      "enabled": false,
+      "versions": [
+        "claude-opus-4-5-20251101",
+        "claude-sonnet-4-5-20250929",
+        "claude-sonnet-4-20250514"
+      ]
+    },
+    "gemini": {
+      "enabled": false,
+      "versions": [
+        "gemini-2.5-pro",
+        "models/gemini-3-pro-preview"
+      ]
+    }
+  },
+  "error": "",
+  "github_commit_status": "skipped",
+  "github_commit_message": "GITHUB_TOKEN not set. Data will not persist across deployments."
+}

@@ -150,14 +150,18 @@ def commit_run_data_to_github(
             logger.info(f"  ✅ Blob created: {path} (SHA: {blob.sha[:8]}...)")
 
         # Create tree
+        from github import InputGitTreeElement
+
         tree_elements = []
         for path, blob_sha in blobs.items():
-            tree_elements.append({
-                "path": path,
-                "mode": "100644",
-                "type": "blob",
-                "sha": blob_sha,
-            })
+            tree_elements.append(
+                InputGitTreeElement(
+                    path=path,
+                    mode="100644",
+                    type="blob",
+                    sha=blob_sha
+                )
+            )
 
         logger.info(f"🌳 Creating Git tree (branch: {branch})...")
         if base_sha:
