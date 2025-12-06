@@ -28,6 +28,7 @@ from capstone_pipeline.config import PROVIDER_MODELS
 from capstone_pipeline.runner.progress import RunProgressTracker
 
 
+@st.cache_data(ttl=10)  # Cache for 10 seconds - run list changes infrequently
 def list_run_ids(data_dir: str) -> list:
     metrics_dir = Path(data_dir) / "metrics"
     if not metrics_dir.exists():
@@ -35,11 +36,14 @@ def list_run_ids(data_dir: str) -> list:
     return [p.stem for p in metrics_dir.glob("*.jsonl")]
 
 
-def read_jsonl(path: Path) -> list:
-    if not path.exists():
+@st.cache_data(ttl=30)  # Cache for 30 seconds - metrics data doesn't change
+def read_jsonl(path: str) -> list:
+    """Read JSONL file and return list of dicts. Takes string path for caching."""
+    p = Path(path)
+    if not p.exists():
         return []
     rows = []
-    with open(path, "r", encoding="utf-8") as f:
+    with open(p, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -48,9 +52,11 @@ def read_jsonl(path: Path) -> list:
     return rows
 
 
+@st.cache_data(ttl=2)  # Cache for 2 seconds - needs to be fresh for monitoring
 def read_run_progress(data_dir: str, run_id: str) -> dict:
     """
     Read progress metadata for a given run_id, if available.
+    Cached with short TTL for responsive monitoring.
     """
     path = Path(data_dir) / "logs" / f"run_{run_id}.json"
     if not path.exists():
@@ -88,170 +94,119 @@ def render_run_monitor(data_dir: str, prompts_file: str) -> None:
         st.info(f"No progress metadata found for run_id={active_run_id}.")
         return
 
-    # Auto-refresh every 2 seconds if the run is still running
-    if prog.get("status") == "running":
-        st_autorefresh = getattr(st, "autorefresh", None)
-        if st_autorefresh is not None:
-            st_autorefresh(interval=2000, key="run_monitor_autorefresh")
-        else:
-            # Fallback: show hint to manually refresh
-            st.caption("🔄 Run in progress – click 'Refresh Progress' to update.")
-    
     # Status display
     status = prog.get("status", "unknown")
     phase = prog.get("phase", "")
-    
+
     cols = st.columns(3)
     cols[0].metric("Run ID", active_run_id)
-    cols[1].metric("Status", status)
-    cols[2].metric("Phase", phase)
-    
+    cols[1].metric("Status", status.upper())
+    cols[2].metric("Phase", phase.upper() if phase else "N/A")
+
     st.write(f"Last update (UTC): `{prog.get('updated_at', '')[:19]}`")
-    
+
     # Loading screens based on phase
-    if phase == "metrics":
-        st.info("📊 **Metrics are being collected...**")
-        st.spinner("Computing metrics for all responses")
-    elif phase == "analyze":
-        st.info("📈 **Analysis is being calculated...**")
-        st.spinner("Running statistical analysis")
+    if phase == "collect" and status == "running":
+        st.markdown("### 📥 Phase 1: Collecting LLM Responses")
+        with st.spinner("Sending prompts to selected models and collecting responses..."):
+            pass
+    elif phase == "metrics" and status == "running":
+        st.markdown("### 📊 Phase 2: Computing Metrics")
+        with st.spinner("Analyzing sentiment, politeness, toxicity, and other metrics..."):
+            pass
+    elif phase == "analyze" and status == "running":
+        st.markdown("### 📈 Phase 3: Running Statistical Analysis")
+        with st.spinner("Performing paired tests, correlations, and generating insights..."):
+            pass
     elif status == "completed":
-        st.success("✅ **Run completed!** Redirecting to Dashboard...")
-        if st.button("View Results in Dashboard Now", type="primary"):
-            st.query_params["view"] = "Dashboard"
-            st.query_params["run"] = active_run_id
-            st.rerun()
-    elif status == "error":
-        st.error(f"❌ **Error**: {prog.get('error', 'Unknown error')}")
-    
-    # Progress display
-    selection = prog.get("selection", {}) or {}
-    per_model = prog.get("per_model", {}) or {}
-    tasks = parse_tasks_file(prompts_file)
-    num_tasks = len(tasks)
-    
-    if selection:
-        st.markdown("#### Per-model / per-version progress")
-        for provider_key, cfg in selection.items():
-            if not cfg.get("enabled"):
-                continue
-            versions = cfg.get("versions") or []
-            if not versions:
-                continue
-            stats = per_model.get(provider_key, {}) or {}
-            model_total = max(int(stats.get("total", 0)), 0)
-            model_done = max(int(stats.get("completed", 0)) + int(stats.get("failed", 0)), 0)
-            model_frac = float(model_done) / model_total if model_total > 0 else 0.0
-            
-            st.markdown(f"**{provider_key}**")
-            for ver in versions:
-                expected = num_tasks
-                actual = int(round(model_frac * expected))
-                actual = min(actual, expected)
-                frac = float(actual) / expected if expected > 0 else 0.0
-                st.write(f"- `{ver}` – {actual}/{expected}")
-                st.progress(min(frac, 1.0))
-    
-    # Manual refresh button (always available when running)
-    if status == "running":
-        if st.button("🔄 Refresh Progress", type="primary"):
-            st.rerun()
-    
-    # Auto-redirect when completed (but don't break sidebar)
-    if status == "completed":
-        if "redirected" not in st.session_state or st.session_state.get("redirected_run_id") != active_run_id:
-            st.session_state["redirected"] = True
-            st.session_state["redirected_run_id"] = active_run_id
-            st.session_state["selected_run_id"] = active_run_id
-            # Use JavaScript to redirect after showing message
-            st.markdown("""
-                <script>
-                    setTimeout(function(){
-                        window.location.href = window.location.pathname + "?view=Dashboard&run=" + arguments[0];
-                    }, 2000);
-                </script>
-            """, unsafe_allow_html=True)
-        st.markdown("### Current Run Status")
-        
-        # Try to get active run or most recent
-        if not active_run_id:
-            from glob import glob
-            logs = sorted(glob(f"{data_dir}/logs/run_*.json"))
-            if logs:
-                latest = max(logs, key=os.path.getmtime)
-                active_run_id = Path(latest).stem.replace("run_", "")
-                st.session_state["active_run_id"] = active_run_id
-        
-        if not active_run_id:
-            st.info("No run detected. Configure models above and click 'Run New Analysis'.")
-            return
-        
-        prog = read_run_progress(data_dir, active_run_id)
-        if not prog:
-            st.info(f"No progress metadata found for run_id={active_run_id}.")
-            return
-        
-        # Status display
-        status = prog.get("status", "unknown")
-        phase = prog.get("phase", "")
-        
-        cols = st.columns(3)
-        cols[0].metric("Run ID", active_run_id)
-        cols[1].metric("Status", status)
-        cols[2].metric("Phase", phase)
-        
-        st.write(f"Last update (UTC): `{prog.get('updated_at', '')[:19]}`")
-        
-        # Loading screens based on phase
-        if phase == "metrics":
-            st.info("📊 **Metrics are being collected...**")
-            st.spinner("Computing metrics for all responses")
-        elif phase == "analyze":
-            st.info("📈 **Analysis is being calculated...**")
-            st.spinner("Running statistical analysis")
-        elif status == "completed":
-            st.success("✅ **Run completed!**")
-            if st.button("View Results in Dashboard", type="primary"):
+        st.success("✅ **Run completed successfully!**")
+
+        # Button to view results - store run_id before switching views
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("📊 View Results in Dashboard", type="primary", use_container_width=True, key=f"view_results_{active_run_id}"):
+                # Store the run_id we want to view
                 st.session_state["selected_run_id"] = active_run_id
+                # Switch view
                 st.session_state["view"] = "Dashboard"
+                # Force rerun
                 st.rerun()
-        elif status == "error":
-            st.error(f"❌ **Error**: {prog.get('error', 'Unknown error')}")
-        
-        # Progress display
+
+    elif status == "error":
+        st.error(f"❌ **Error occurred**: {prog.get('error', 'Unknown error')}")
+        st.warning("Check the logs or try running the analysis again.")
+
+    # Progress display - show during any active run or when completed
+    if status == "running" or (status == "completed" and phase == "done"):
         selection = prog.get("selection", {}) or {}
         per_model = prog.get("per_model", {}) or {}
         tasks = parse_tasks_file(prompts_file)
         num_tasks = len(tasks)
-        
+
         if selection:
-            st.markdown("#### Per-model / per-version progress")
+            st.markdown("---")
+            st.markdown("### 📊 Per-Model Progress")
+
             for provider_key, cfg in selection.items():
                 if not cfg.get("enabled"):
                     continue
                 versions = cfg.get("versions") or []
                 if not versions:
                     continue
+
                 stats = per_model.get(provider_key, {}) or {}
                 model_total = max(int(stats.get("total", 0)), 0)
                 model_done = max(int(stats.get("completed", 0)) + int(stats.get("failed", 0)), 0)
+                model_failed = int(stats.get("failed", 0))
+
+                # Calculate progress
                 model_frac = float(model_done) / model_total if model_total > 0 else 0.0
-                
-                st.markdown(f"**{provider_key}**")
+
+                # Provider header with overall stats
+                st.markdown(f"**{provider_key.upper()}** - {model_done}/{model_total} prompts")
+
+                # Show per-version progress
                 for ver in versions:
                     expected = num_tasks
                     actual = int(round(model_frac * expected))
                     actual = min(actual, expected)
                     frac = float(actual) / expected if expected > 0 else 0.0
-                    st.write(f"- `{ver}` – {actual}/{expected}")
-                    st.progress(min(frac, 1.0))
-        
-        # Auto-redirect when completed
-        if status == "completed" and "redirected" not in st.session_state:
-            st.session_state["redirected"] = True
-            st.session_state["selected_run_id"] = active_run_id
-            time.sleep(2)  # Show completion message briefly
-            st.session_state["view"] = "Dashboard"
+
+                    # Version label with progress
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        st.progress(min(frac, 1.0))
+                    with col2:
+                        st.write(f"`{ver}`")
+                        st.caption(f"{actual}/{expected}")
+
+                # Show failures if any
+                if model_failed > 0:
+                    st.warning(f"⚠️ {model_failed} failed prompts")
+
+                st.write("")  # Spacing
+
+    # Auto-refresh logic at the END after all UI is rendered
+    if status == "running":
+        st.info("🔄 **Auto-refreshing every 2 seconds...**")
+
+        # Initialize last_refresh_time if not exists
+        if "last_refresh_time" not in st.session_state:
+            st.session_state["last_refresh_time"] = time.time()
+
+        current_time = time.time()
+        time_since_refresh = current_time - st.session_state["last_refresh_time"]
+
+        # If enough time has passed, update timestamp and trigger refresh
+        if time_since_refresh >= 2.0:
+            st.session_state["last_refresh_time"] = current_time
+            time.sleep(0.1)  # Brief pause to show UI
+            st.rerun()
+        else:
+            # Not enough time yet, wait remaining time then refresh
+            remaining = 2.0 - time_since_refresh
+            time.sleep(remaining)
+            st.session_state["last_refresh_time"] = time.time()
             st.rerun()
 
 
@@ -380,29 +335,26 @@ def main():
     prompts_file = "prompts.txt"
     keys_file = "data/keys.json"
 
-    # Always show view selector in sidebar
-    # Get current view from session state or default to Dashboard
-    current_view = st.session_state.get("view", "Dashboard")
-    
-    # Check URL params for view (for redirects)
-    query_params = st.query_params
-    if "view" in query_params:
-        url_view = query_params["view"]
-        if url_view in ["Dashboard", "Run Monitor"]:
-            current_view = url_view
-            st.session_state["view"] = current_view
-    
-    # Always display the radio button - this is the main way to switch views
-    view = st.sidebar.radio("View", ["Dashboard", "Run Monitor"], 
-                           index=0 if current_view == "Dashboard" else 1,
-                           key="view_selector")
-    
-    # Update session state when view changes
-    if view != current_view:
-        st.session_state["view"] = view
-        # Clear query params when manually switching
-        if "view" in query_params:
-            st.query_params.clear()
+    # Initialize view in session state
+    if "view" not in st.session_state:
+        st.session_state["view"] = "Dashboard"
+
+    # Always display the radio button - user can switch views
+    view_options = ["Dashboard", "Run Monitor"]
+    current_index = 0 if st.session_state["view"] == "Dashboard" else 1
+
+    # Radio button to select view
+    selected_view = st.sidebar.radio(
+        "View",
+        view_options,
+        index=current_index
+    )
+
+    # Update session state when radio selection changes
+    st.session_state["view"] = selected_view
+
+    # Use session state to determine which view to render
+    view = st.session_state["view"]
     
     # Initialize provider selection if not exists
     if "provider_selection" not in st.session_state:
@@ -541,15 +493,13 @@ def main():
         display_map[label] = rid
         display_options.append(label)
     
-    # Check if we should select a specific run (from redirect or URL param)
+    # Check if we should select a specific run (from redirect)
     default_index = 0
     selected_id = None
-    if "run" in query_params:
-        selected_id = query_params["run"]
-    elif "selected_run_id" in st.session_state:
+    if "selected_run_id" in st.session_state:
         selected_id = st.session_state["selected_run_id"]
         del st.session_state["selected_run_id"]
-    
+
     if selected_id:
         for idx, label in enumerate(display_options):
             if display_map[label] == selected_id:
@@ -566,8 +516,8 @@ def main():
         st.info("No runs found in metrics. Go to Run Monitor to start a new analysis.")
         return
 
-    metrics_rows = read_jsonl(Path(data_dir) / "metrics" / f"{run_id}.jsonl")
-    analysis_rows = read_jsonl(Path(data_dir) / "analysis" / f"{run_id}.jsonl")
+    metrics_rows = read_jsonl(str(Path(data_dir) / "metrics" / f"{run_id}.jsonl"))
+    analysis_rows = read_jsonl(str(Path(data_dir) / "analysis" / f"{run_id}.jsonl"))
     df = pd.DataFrame(metrics_rows)
 
     st.subheader("Filters")
