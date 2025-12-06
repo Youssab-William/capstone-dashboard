@@ -30,6 +30,9 @@ class RunProgress:
     # to reconstruct per-model / per-version expectations for a run.
     selection: Dict[str, dict] = field(default_factory=dict)
     error: str = ""
+    # GitHub commit status: "pending", "success", "failed", "skipped", "error"
+    github_commit_status: str = ""
+    github_commit_message: str = ""
 
 
 class RunProgressTracker:
@@ -163,6 +166,16 @@ class RunProgressTracker:
         progress.status = status
         if error:
             progress.error = error
+        self._save(progress)
+
+    def set_github_commit_status(self, status: str, message: str = "") -> None:
+        """
+        Set the GitHub commit status and optional message.
+        Status values: "pending", "success", "failed", "skipped", "error"
+        """
+        progress = self._load()
+        progress.github_commit_status = status
+        progress.github_commit_message = message
         self._save(progress)
 
 

@@ -121,6 +121,36 @@ def render_run_monitor(data_dir: str, prompts_file: str) -> None:
     elif status == "completed":
         st.success("✅ **Run completed successfully!**")
 
+        # Show GitHub commit status
+        github_status = prog.get("github_commit_status", "")
+        github_message = prog.get("github_commit_message", "")
+
+        if github_status:
+            if github_status == "success":
+                st.success(f"✅ **GitHub Commit**: {github_message}")
+            elif github_status == "failed":
+                st.error(f"❌ **GitHub Commit Failed**: {github_message}")
+            elif github_status == "skipped":
+                st.warning(f"⚠️ **GitHub Commit Skipped**: {github_message}")
+                with st.expander("How to enable GitHub persistence"):
+                    st.markdown("""
+                    To persist data across Streamlit Cloud deployments:
+
+                    1. Go to your app settings on Streamlit Cloud
+                    2. Navigate to **Secrets** section
+                    3. Add your GitHub token:
+                    ```toml
+                    GITHUB_TOKEN = "your_github_personal_access_token"
+                    ```
+                    4. Save and redeploy
+
+                    See `GITHUB_SETUP.md` for detailed instructions.
+                    """)
+            elif github_status == "error":
+                st.error(f"❌ **GitHub Commit Error**: {github_message}")
+            elif github_status == "pending":
+                st.info(f"🔄 **GitHub Commit**: {github_message}")
+
         # Button to view results - store run_id before switching views
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
@@ -295,10 +325,12 @@ def start_background_run(data_dir: str, prompts_file: str, keys_file: str, run_i
             github_token = os.environ.get("GITHUB_TOKEN")
             repo_owner = os.environ.get("GITHUB_REPO_OWNER", "Youssab-William")
             repo_name = os.environ.get("GITHUB_REPO_NAME", "capstone-dashboard")
-            
+
             if github_token:
+                tracker.set_github_commit_status("pending", "Attempting to commit to GitHub...")
                 if logger:
                     logger.info(f"🔄 Attempting to commit run {run_id} data to GitHub...")
+
                 success = commit_run_data_to_github(
                     data_dir=data_dir,
                     run_id=run_id,
@@ -306,17 +338,22 @@ def start_background_run(data_dir: str, prompts_file: str, keys_file: str, run_i
                     repo_owner=repo_owner,
                     repo_name=repo_name,
                 )
+
                 if success:
+                    tracker.set_github_commit_status("success", f"Successfully committed to {repo_owner}/{repo_name}")
                     if logger:
                         logger.info(f"✅ Successfully committed run {run_id} data to GitHub")
                 else:
+                    tracker.set_github_commit_status("failed", "Failed to commit. Check GITHUB_TOKEN and repo permissions.")
                     if logger:
                         logger.warning(f"❌ Failed to commit run {run_id} data to GitHub. Check GITHUB_TOKEN and repo permissions.")
             else:
+                tracker.set_github_commit_status("skipped", "GITHUB_TOKEN not set. Data will not persist across deployments.")
                 if logger:
                     logger.warning(f"⚠️ GITHUB_TOKEN not set. Run {run_id} data will NOT persist across deployments.")
         except Exception as e:
             # Don't fail the run if GitHub commit fails
+            tracker.set_github_commit_status("error", f"Exception during commit: {str(e)}")
             if logger:
                 logger.warning(f"Error committing to GitHub (non-fatal): {e}")
     except Exception as e:
